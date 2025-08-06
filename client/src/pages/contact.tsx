@@ -21,8 +21,9 @@ interface TeamMember {
 const teamMembers: TeamMember[] = [
   {
     name: "Kshitij Singh",
-    role: "AI/ML Engineer",
-    photo: kshitijPhoto,
+    role: "AI/ML Developer",
+    photo: nihiraPhoto,
+    email: "kshitijsingh066@gmail.com",
     github: "https://github.com/kshitijhackathon",
     linkedin: "https://www.linkedin.com/in/kshitij-singh-915579222/",
     instagram: "https://www.instagram.com/kshitijsingh066/profilecard/?igsh=MWNkY3F6Y21nMG5yZw=="
@@ -30,7 +31,7 @@ const teamMembers: TeamMember[] = [
   {
     name: "Nihira Agrawal",
     role: "Frontend Developer & UI/UX Developer",
-    photo: nihiraPhoto,
+    photo: kshitijPhoto,
     email: "agrawalnihira@gmail.com",
     linkedin: "https://www.linkedin.com/in/nihira-agrawal-587810290/",
     instagram: "https://www.instagram.com/_nihiraa_?igsh=NWRsbXVkanVwZXpt"
@@ -45,7 +46,7 @@ const teamMembers: TeamMember[] = [
   },
   {
     name: "Gurleen Kaur Bhatia",
-    role: "Software Developer",
+    role: "AI/ML Developer",
     photo: gurleenPhoto,
     email: "gurleenkaurbhatia211359@gmail.com",
     github: "https://github.com/Gurleen-ctrl1",
