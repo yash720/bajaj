@@ -25,31 +25,72 @@ async function processClaimQuery(query: string, pdfFileName?: string): Promise<C
   // Simulate processing delay
   await new Promise(resolve => setTimeout(resolve, 2000));
 
-  // Mock response based on query content
-  const mockResponse: ClaimResponse = {
-    QueryDetails: {
-      PatientAge: "46 years",
-      MedicalProcedure: "Knee Surgery",
-      Location: "Pune",
-      PolicyAge: "3 months",
-      EstimatedCost: "₹85,000"
-    },
-    Decision: "APPROVED",
-    Amount: "₹85,000",
-    Justification: "The claim meets all policy requirements. The knee surgery is covered under the medical benefits section, and the policy has completed the mandatory waiting period. The treatment was performed at an approved network hospital in Pune.",
-    RelevantClauses: [
-      "Section 4.2: Orthopedic procedures coverage after 90-day waiting period",
-      "Section 6.1: Network hospital coverage at 100% reimbursement",
-      "Section 8.3: Pre-authorization not required for emergency procedures"
-    ]
+  // Parse query to extract information
+  const extractInfo = (query: string) => {
+    const ageMatch = query.match(/(\d+)(?:-year-old|F|M|\s+(?:male|female))/i);
+    const genderMatch = query.match(/(male|female|M|F)/i);
+    const procedureMatch = query.match(/(surgery|care|procedure|treatment|maternity|knee|hip|cardiac|dental)[\s\w]*/i);
+    const locationMatch = query.match(/(Mumbai|Delhi|Pune|Bangalore|Chennai|Kolkata|Hyderabad|[\w\s]+(?:\s+city|\s+hospital))/i);
+    const policyMatch = query.match(/(\d+)-month/i);
+
+    return {
+      age: ageMatch ? ageMatch[1] : null,
+      gender: genderMatch ? (genderMatch[1].toLowerCase().startsWith('m') ? 'Male' : 'Female') : null,
+      procedure: procedureMatch ? procedureMatch[0].trim() : null,
+      location: locationMatch ? locationMatch[1] : null,
+      policy_duration: policyMatch ? policyMatch[1] : null,
+    };
   };
 
-  // Parse query to extract relevant information
-  if (query.toLowerCase().includes('reject') || query.toLowerCase().includes('deny')) {
-    mockResponse.Decision = "REJECTED";
-    mockResponse.Amount = "₹0";
-    mockResponse.Justification = "The claim does not meet policy requirements due to pre-existing condition exclusions or insufficient waiting period completion.";
+  const queryDetails = extractInfo(query);
+  
+  // Determine decision based on query content and policy duration
+  const policyMonths = parseInt(queryDetails.policy_duration || "0");
+  const isMaternity = query.toLowerCase().includes('maternity');
+  const isAccident = query.toLowerCase().includes('accident');
+  
+  let decision = "Approved";
+  let amount = 500000;
+  let justification = "The claim meets all policy requirements and coverage terms.";
+  
+  // Apply business logic
+  if (isMaternity && policyMonths < 36) {
+    decision = "Rejected";
+    amount = null;
+    justification = `Maternity care has a 36-month waiting period. Policy duration is ${policyMonths} months.`;
+  } else if (queryDetails.procedure?.toLowerCase().includes('pre-existing') && policyMonths < 24) {
+    decision = "Rejected";
+    amount = null;
+    justification = `Pre-existing conditions have a 24-month waiting period. Policy duration is ${policyMonths} months.`;
+  } else if (isAccident) {
+    decision = "Approved";
+    amount = 500000;
+    justification = "Accident-related procedures are covered without waiting period.";
   }
+
+  const mockResponse: ClaimResponse = {
+    QueryDetails: queryDetails,
+    Decision: decision,
+    Amount: amount,
+    Justification: justification,
+    RelevantClauses: [
+      {
+        text: "Section 4.2: Orthopedic procedures coverage after 90-day waiting period",
+        source: "policy_document.pdf",
+        position: 1
+      },
+      {
+        text: "Section 6.1: Network hospital coverage at 100% reimbursement",
+        source: "policy_document.pdf",
+        position: 2
+      },
+      {
+        text: "Section 8.3: Pre-authorization not required for emergency procedures",
+        source: "policy_document.pdf", 
+        position: 3
+      }
+    ]
+  };
 
   return mockResponse;
 }

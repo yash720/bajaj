@@ -49,7 +49,7 @@ export default function ResultsDisplay({ results, onNewQuery }: ResultsDisplayPr
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-bold text-bajaj-blue">
-                {results.Amount}
+                {results.Amount ? `₹${results.Amount.toLocaleString('en-IN')}` : 'N/A'}
               </p>
             </CardContent>
           </Card>
@@ -101,11 +101,18 @@ export default function ResultsDisplay({ results, onNewQuery }: ResultsDisplayPr
             </CardHeader>
             <CardContent>
               <div className="bg-gray-50 rounded-lg p-4">
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {results.RelevantClauses.map((clause, index) => (
-                    <div key={index} className="flex items-start space-x-2">
-                      <CheckCircle className="h-4 w-4 text-green-600 mt-1 flex-shrink-0" />
-                      <span className="text-sm text-gray-700">{clause}</span>
+                    <div key={index} className="border-l-4 border-bajaj-blue pl-4">
+                      <div className="flex items-start space-x-2 mb-1">
+                        <CheckCircle className="h-4 w-4 text-green-600 mt-1 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 font-medium">
+                          {clause.text}
+                        </span>
+                      </div>
+                      <div className="text-xs text-gray-500 ml-6">
+                        Source: {clause.source} | Position: {clause.position}
+                      </div>
                     </div>
                   ))}
                 </div>

@@ -30,16 +30,20 @@ export const insertClaimQuerySchema = createInsertSchema(claimQueries).pick({
 
 export const claimResponseSchema = z.object({
   QueryDetails: z.object({
-    PatientAge: z.string(),
-    MedicalProcedure: z.string(),
-    Location: z.string(),
-    PolicyAge: z.string(),
-    EstimatedCost: z.string(),
+    age: z.string().nullable(),
+    gender: z.string().nullable(),
+    procedure: z.string().nullable(),
+    location: z.string().nullable(),
+    policy_duration: z.string().nullable(),
   }),
   Decision: z.string(),
-  Amount: z.string(),
+  Amount: z.number().nullable(),
   Justification: z.string(),
-  RelevantClauses: z.array(z.string()),
+  RelevantClauses: z.array(z.object({
+    text: z.string(),
+    source: z.string(),
+    position: z.number(),
+  })),
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
