@@ -1,0 +1,120 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(20, 14.3%, 4.1%);
+  --muted: hsl(210, 40%, 96%);
+  --muted-foreground: hsl(25, 5.3%, 44.7%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(20, 14.3%, 4.1%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(20, 14.3%, 4.1%);
+  --border: hsl(20, 5.9%, 90%);
+  --input: hsl(20, 5.9%, 90%);
+  --primary: hsl(207, 90%, 30%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(210, 40%, 96%);
+  --secondary-foreground: hsl(222, 84%, 4.9%);
+  --accent: hsl(210, 40%, 96%);
+  --accent-foreground: hsl(222, 84%, 4.9%);
+  --destructive: hsl(0, 84.2%, 60.2%);
+  --destructive-foreground: hsl(60, 9.1%, 97.8%);
+  --ring: hsl(20, 14.3%, 4.1%);
+  --radius: 0.5rem;
+  
+  /* Bajaj brand colors */
+  --bajaj-blue: hsl(207, 100%, 30%);
+  --bajaj-light-gray: hsl(0, 0%, 96%);
+}
+
+.dark {
+  --background: hsl(240, 10%, 3.9%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(240, 3.7%, 15.9%);
+  --muted-foreground: hsl(240, 5%, 64.9%);
+  --popover: hsl(240, 10%, 3.9%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(240, 10%, 3.9%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(240, 3.7%, 15.9%);
+  --input: hsl(240, 3.7%, 15.9%);
+  --primary: hsl(207, 90%, 30%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(240, 3.7%, 15.9%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --accent: hsl(240, 3.7%, 15.9%);
+  --accent-foreground: hsl(0, 0%, 98%);
+  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(240, 4.9%, 83.9%);
+  --bajaj-blue: hsl(207, 100%, 30%);
+  --bajaj-light-gray: hsl(0, 0%, 15%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    font-family: 'Poppins', sans-serif;
+  }
+}
+
+@layer utilities {
+  .bg-bajaj-blue {
+    background-color: var(--bajaj-blue);
+  }
+  
+  .text-bajaj-blue {
+    color: var(--bajaj-blue);
+  }
+  
+  .bg-bajaj-light-gray {
+    background-color: var(--bajaj-light-gray);
+  }
+  
+  .border-bajaj-blue {
+    border-color: var(--bajaj-blue);
+  }
+  
+  .hover\\:bg-bajaj-blue:hover {
+    background-color: var(--bajaj-blue);
+  }
+}
+
+@keyframes fadeInSpin {
+  0% { 
+    opacity: 0; 
+    transform: rotate(0deg) scale(0.8); 
+  }
+  50% { 
+    opacity: 0.8; 
+    transform: rotate(180deg) scale(1.1); 
+  }
+  100% { 
+    opacity: 1; 
+    transform: rotate(360deg) scale(1); 
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.animate-fade-in-spin {
+  animation: fadeInSpin 2s ease-in-out;
+}
+
+.loading-spinner {
+  border: 4px solid hsl(0, 0%, 96%);
+  border-top: 4px solid var(--bajaj-blue);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+}
