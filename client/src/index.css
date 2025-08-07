@@ -73,10 +73,6 @@
     color: var(--bajaj-blue);
   }
   
-  .logo-white {
-    filter: brightness(0) invert(1);
-  }
-  
   .bg-bajaj-light-gray {
     background-color: var(--bajaj-light-gray);
   }
