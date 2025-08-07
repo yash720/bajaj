@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import { CheckCircle, IndianRupee, Info, Gavel, File, Code, Download, Plus, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,8 +10,19 @@ interface ResultsDisplayProps {
   onNewQuery: () => void;
 }
 
-export default function ResultsDisplay({ results, onNewQuery }: ResultsDisplayProps) {
+const ResultsDisplay = memo(function ResultsDisplay({ results, onNewQuery }: ResultsDisplayProps) {
   const isApproved = results.Decision === "APPROVED";
+  
+  // Debug: Log the results to see the structure (only in development)
+  if (process.env.NODE_ENV === 'development') {
+    console.log("Results received:", results);
+    console.log("RelevantClauses:", results.RelevantClauses);
+    console.log("Type of RelevantClauses:", typeof results.RelevantClauses);
+    console.log("Is Array:", Array.isArray(results.RelevantClauses));
+  }
+
+  // Ensure RelevantClauses is always an array
+  const relevantClauses = Array.isArray(results.RelevantClauses) ? results.RelevantClauses : [];
 
   return (
     <div className="bg-white rounded-lg shadow-xl overflow-hidden">
@@ -102,7 +113,7 @@ export default function ResultsDisplay({ results, onNewQuery }: ResultsDisplayPr
             <CardContent>
               <div className="bg-gray-50 rounded-lg p-4">
                 <div className="space-y-3">
-                  {results.RelevantClauses.map((clause, index) => (
+                  {relevantClauses.map((clause, index) => (
                     <div key={index} className="border-l-4 border-bajaj-blue pl-4">
                       <div className="flex items-start space-x-2 mb-1">
                         <CheckCircle className="h-4 w-4 text-green-600 mt-1 flex-shrink-0" />
@@ -159,4 +170,6 @@ export default function ResultsDisplay({ results, onNewQuery }: ResultsDisplayPr
       </div>
     </div>
   );
-}
+});
+
+export default ResultsDisplay;

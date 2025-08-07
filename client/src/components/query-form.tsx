@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, memo, useCallback } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,7 @@ interface QueryFormProps {
   onLoading: (loading: boolean) => void;
 }
 
-export default function QueryForm({ onResults, onLoading }: QueryFormProps) {
+const QueryForm = memo(function QueryForm({ onResults, onLoading }: QueryFormProps) {
   const [query, setQuery] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const { toast } = useToast();
@@ -60,7 +60,7 @@ export default function QueryForm({ onResults, onLoading }: QueryFormProps) {
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     
     if (!query.trim()) {
@@ -76,7 +76,7 @@ export default function QueryForm({ onResults, onLoading }: QueryFormProps) {
       query: query.trim(),
       pdf: selectedFile || undefined,
     });
-  };
+  }, [query, selectedFile, submitMutation, toast]);
 
   return (
     <div className="bg-white rounded-lg shadow-xl p-8 mb-8">
@@ -117,4 +117,6 @@ export default function QueryForm({ onResults, onLoading }: QueryFormProps) {
       </form>
     </div>
   );
-}
+});
+
+export default QueryForm;

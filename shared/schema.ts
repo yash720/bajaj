@@ -13,6 +13,7 @@ export const claimQueries = pgTable("claim_queries", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   query: text("query").notNull(),
   pdfFileName: text("pdf_file_name"),
+  cloudinaryUrl: text("cloudinary_url"),
   response: json("response"),
   createdAt: timestamp("created_at").defaultNow(),
 });
@@ -25,6 +26,7 @@ export const insertUserSchema = createInsertSchema(users).pick({
 export const insertClaimQuerySchema = createInsertSchema(claimQueries).pick({
   query: true,
   pdfFileName: true,
+  cloudinaryUrl: true,
   response: true,
 });
 

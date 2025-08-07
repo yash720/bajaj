@@ -1,59 +1,55 @@
-import { type User, type InsertUser, type ClaimQuery, type InsertClaimQuery } from "@shared/schema";
-import { randomUUID } from "crypto";
+import mongoose from 'mongoose';
+import { config } from './config';
 
-export interface IStorage {
-  getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
-  createClaimQuery(claimQuery: InsertClaimQuery): Promise<ClaimQuery>;
-  getClaimQuery(id: string): Promise<ClaimQuery | undefined>;
-  getAllClaimQueries(): Promise<ClaimQuery[]>;
+// MongoDB connection
+mongoose.connect(config.database.url)
+  .then(() => console.log('Connected to MongoDB'))
+  .catch(err => console.error('MongoDB connection error:', err));
+
+// Claim Query Schema
+const claimQuerySchema = new mongoose.Schema({
+  id: { type: String, required: true, unique: true },
+  query: { type: String, required: true },
+  pdfFileName: { type: String },
+  cloudinaryUrl: { type: String },
+  response: { type: mongoose.Schema.Types.Mixed },
+  createdAt: { type: Date, default: Date.now }
+});
+
+const ClaimQuery = mongoose.model('ClaimQuery', claimQuerySchema);
+
+// Generate UUID for MongoDB
+function generateId(): string {
+  return Math.random().toString(36).substring(2) + Date.now().toString(36);
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<string, User>;
-  private claimQueries: Map<string, ClaimQuery>;
+export const storage = {
+  async createClaimQuery(data: {
+    query: string;
+    pdfFileName?: string;
+    cloudinaryUrl?: string;
+    response: any;
+  }) {
+    const id = generateId();
+    const claimQuery = new ClaimQuery({
+      id,
+      ...data
+    });
+    await claimQuery.save();
+    return { id, ...data };
+  },
 
-  constructor() {
-    this.users = new Map();
-    this.claimQueries = new Map();
+  async getClaimQuery(id: string) {
+    const claimQuery = await ClaimQuery.findOne({ id });
+    return claimQuery ? claimQuery.toObject() : null;
+  },
+
+  async getAllClaimQueries() {
+    const claimQueries = await ClaimQuery.find().sort({ createdAt: -1 });
+    return claimQueries.map(query => query.toObject());
+  },
+
+  async deleteClaimQuery(id: string) {
+    await ClaimQuery.deleteOne({ id });
   }
-
-  async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
-  }
-
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
-  }
-
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
-  }
-
-  async createClaimQuery(insertClaimQuery: InsertClaimQuery): Promise<ClaimQuery> {
-    const id = randomUUID();
-    const claimQuery: ClaimQuery = { 
-      ...insertClaimQuery, 
-      id, 
-      createdAt: new Date() 
-    };
-    this.claimQueries.set(id, claimQuery);
-    return claimQuery;
-  }
-
-  async getClaimQuery(id: string): Promise<ClaimQuery | undefined> {
-    return this.claimQueries.get(id);
-  }
-
-  async getAllClaimQueries(): Promise<ClaimQuery[]> {
-    return Array.from(this.claimQueries.values());
-  }
-}
-
-export const storage = new MemStorage();
+};

@@ -1,0 +1,312 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bajaj Intelligent Claims Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    'bajaj-blue': '#004C99',
+                    'bajaj-light-gray': '#F5F5F5'
+                },
+                fontFamily: {
+                    'poppins': ['Poppins', 'sans-serif']
+                },
+                animation: {
+                    'logo-spin': 'logoSpin 1.5s ease-out',
+                    'fade-in': 'fadeIn 1s ease-out',
+                    'spin-slow': 'spin 2s linear infinite'
+                },
+                keyframes: {
+                    logoSpin: {
+                        '0%': { transform: 'rotate(0deg) scale(0.8)', opacity: '0' },
+                        '50%': { transform: 'rotate(180deg) scale(1.1)', opacity: '0.7' },
+                        '100%': { transform: 'rotate(360deg) scale(1)', opacity: '1' }
+                    },
+                    fadeIn: {
+                        '0%': { opacity: '0', transform: 'translateY(20px)' },
+                        '100%': { opacity: '1', transform: 'translateY(0)' }
+                    }
+                }
+            }
+        }
+    };
+    </script>
+</head>
+<body class="font-poppins bg-white">
+    <!-- @COMPONENT: LoadingScreen [logo animation on page load] -->
+    <div id="loadingScreen" class="fixed inset-0 bg-white z-50 flex items-center justify-center">
+        <div class="text-center">
+            <!-- Bajaj logo placeholder with animation -->
+            <div class="w-24 h-24 mx-auto mb-4 bg-bajaj-blue rounded-full flex items-center justify-center animate-logo-spin">
+                <span class="text-white font-bold text-2xl">B</span>
+            </div>
+            <h2 class="text-bajaj-blue font-semibold text-xl animate-fade-in">Bajaj Claims Assistant</h2>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: LoadingScreen -->
+
+    <!-- @COMPONENT: Navbar [responsive navigation with logo and menu] -->
+    <nav class="bg-white shadow-md border-b border-bajaj-light-gray">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo Section -->
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-bajaj-blue rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-lg">B</span>
+                    </div>
+                </div>
+                
+                <!-- Center Title -->
+                <div class="hidden md:block">
+                    <h1 class="text-bajaj-blue font-semibold text-xl">Bajaj Intelligent Claims Assistant</h1>
+                </div>
+                
+                <!-- Navigation Menu -->
+                <div class="hidden md:flex space-x-8">
+                    <a href="#" class="text-gray-700 hover:text-bajaj-blue transition-colors duration-200 font-medium">Home</a>
+                    <a href="#" class="text-gray-700 hover:text-bajaj-blue transition-colors duration-200 font-medium">About</a>
+                    <a href="#" class="text-gray-700 hover:text-bajaj-blue transition-colors duration-200 font-medium">Contact</a>
+                </div>
+                
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden">
+                    <button id="mobileMenuBtn" class="text-gray-700 hover:text-bajaj-blue focus:outline-none">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Mobile Menu -->
+            <div id="mobileMenu" class="md:hidden hidden pb-4">
+                <div class="flex flex-col space-y-3">
+                    <h1 class="text-bajaj-blue font-semibold text-lg mb-2">Bajaj Intelligent Claims Assistant</h1>
+                    <a href="#" class="text-gray-700 hover:text-bajaj-blue transition-colors duration-200">Home</a>
+                    <a href="#" class="text-gray-700 hover:text-bajaj-blue transition-colors duration-200">About</a>
+                    <a href="#" class="text-gray-700 hover:text-bajaj-blue transition-colors duration-200">Contact</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <!-- @END_COMPONENT: Navbar -->
+
+    <!-- @COMPONENT: MainContent [primary interface for query processing] -->
+    <main id="mainContent" class="hidden min-h-screen bg-bajaj-light-gray py-8 px-4">
+        <div class="max-w-4xl mx-auto">
+            <!-- Header Section -->
+            <div class="text-center mb-8">
+                <h1 class="text-4xl md:text-5xl font-bold text-bajaj-blue mb-4">AI Claims Processing</h1>
+                <p class="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
+                    Submit your insurance query and get instant AI-powered analysis and recommendations for your claims.
+                </p>
+            </div>
+
+            <!-- Query Form Section -->
+            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
+                <form id="queryForm" class="space-y-6">
+                    <div>
+                        <label for="queryInput" class="block text-sm font-semibold text-gray-700 mb-3">
+                            Describe your insurance query or claim details:
+                        </label>
+                        <textarea 
+                            id="queryInput"
+                            data-mock="true"
+                            rows="6"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bajaj-blue focus:border-transparent resize-none text-gray-700 placeholder-gray-400"
+                            placeholder="46-year-old male, knee surgery in Pune, 3-month-old insurance policy"
+                            required
+                        ></textarea>
+                    </div>
+                    
+                    <button 
+                        type="submit"
+                        id="submitBtn"
+                        data-event="click:handleSubmit"
+                        class="w-full bg-bajaj-blue text-white font-semibold py-4 px-6 rounded-lg hover:bg-blue-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-bajaj-blue focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <span id="submitText">Process Query</span>
+                        <div id="loadingSpinner" class="hidden flex items-center justify-center">
+                            <div class="animate-spin-slow rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></div>
+                            Processing...
+                        </div>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Results Section -->
+            <div id="resultsSection" class="hidden bg-white rounded-xl shadow-lg p-6 md:p-8">
+                <h3 class="text-2xl font-bold text-bajaj-blue mb-4">AI Analysis Results</h3>
+                <div class="bg-gray-50 rounded-lg p-4 overflow-x-auto">
+                    <pre id="responseOutput" class="text-sm text-gray-800 whitespace-pre-wrap"></pre>
+                </div>
+                <button 
+                    id="newQueryBtn"
+                    class="mt-4 bg-gray-100 text-bajaj-blue font-medium py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors duration-200"
+                >
+                    Submit New Query
+                </button>
+            </div>
+
+            <!-- Features Section -->
+            <div class="grid md:grid-cols-3 gap-6 mt-12">
+                <div class="bg-white rounded-lg p-6 shadow-md text-center">
+                    <div class="w-12 h-12 bg-bajaj-blue rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-white font-bold">AI</span>
+                    </div>
+                    <h3 class="font-semibold text-lg text-gray-800 mb-2">AI-Powered Analysis</h3>
+                    <p class="text-gray-600">Advanced machine learning algorithms analyze your claims instantly.</p>
+                </div>
+                
+                <div class="bg-white rounded-lg p-6 shadow-md text-center">
+                    <div class="w-12 h-12 bg-bajaj-blue rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-white font-bold">⚡</span>
+                    </div>
+                    <h3 class="font-semibold text-lg text-gray-800 mb-2">Fast Processing</h3>
+                    <p class="text-gray-600">Get results in seconds, not days. Streamlined claims processing.</p>
+                </div>
+                
+                <div class="bg-white rounded-lg p-6 shadow-md text-center">
+                    <div class="w-12 h-12 bg-bajaj-blue rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-white font-bold">🔒</span>
+                    </div>
+                    <h3 class="font-semibold text-lg text-gray-800 mb-2">Secure & Reliable</h3>
+                    <p class="text-gray-600">Your data is protected with enterprise-grade security measures.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+    <!-- @END_COMPONENT: MainContent -->
+
+    <!-- @COMPONENT: Footer [company information and copyright] -->
+    <footer class="bg-bajaj-blue text-white py-6 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-sm md:text-base">© 2025 Bajaj Auto Ltd. | AI-Powered Claims Processing</p>
+        </div>
+    </footer>
+    <!-- @END_COMPONENT: Footer -->
+
+    <script>
+    (function() {
+        // @STATE: isLoading:boolean = false
+        // @STATE: currentQuery:string = ""
+        // @STATE: queryResults:object = null
+        
+        // Mock sendQuery function to simulate backend call
+        // @FUNCTIONALITY: This should be replaced with actual API call in production
+        async function sendQuery(queryText) {
+            // TODO: Replace with actual API endpoint
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve({
+                        status: "success",
+                        query: queryText,
+                        analysis: {
+                            patientAge: 46,
+                            procedure: "Knee Surgery",
+                            location: "Pune",
+                            policyAge: "3 months",
+                            eligibility: "Eligible",
+                            estimatedCoverage: "₹2,50,000",
+                            waitingPeriod: "Not applicable for accidents",
+                            recommendation: "Claim approved - All conditions met",
+                            nextSteps: [
+                                "Submit medical bills and reports",
+                                "Provide surgeon's certificate",
+                                "Complete claim form BJCL-2025"
+                            ]
+                        },
+                        processingTime: "2.3 seconds",
+                        confidence: "94%"
+                    });
+                }, 2000);
+            });
+        }
+
+        // Page load animation
+        document.addEventListener('DOMContentLoaded', function() {
+            const loadingScreen = document.getElementById('loadingScreen');
+            const mainContent = document.getElementById('mainContent');
+            
+            setTimeout(() => {
+                loadingScreen.classList.add('hidden');
+                mainContent.classList.remove('hidden');
+                mainContent.classList.add('animate-fade-in');
+            }, 2000);
+        });
+
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        
+        mobileMenuBtn.addEventListener('click', function() {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Form submission handler
+        const queryForm = document.getElementById('queryForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const submitText = document.getElementById('submitText');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const resultsSection = document.getElementById('resultsSection');
+        const responseOutput = document.getElementById('responseOutput');
+        const newQueryBtn = document.getElementById('newQueryBtn');
+        const queryInput = document.getElementById('queryInput');
+
+        queryForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const queryText = queryInput.value.trim();
+            if (!queryText) return;
+
+            // Show loading state
+            submitBtn.disabled = true;
+            submitText.classList.add('hidden');
+            loadingSpinner.classList.remove('hidden');
+            resultsSection.classList.add('hidden');
+
+            try {
+                // @FUNCTIONALITY: Send query to AI backend for processing
+                const results = await sendQuery(queryText);
+                
+                // Display results
+                responseOutput.textContent = JSON.stringify(results, null, 2);
+                resultsSection.classList.remove('hidden');
+                resultsSection.scrollIntoView({ behavior: 'smooth' });
+                
+            } catch (error) {
+                // @FUNCTIONALITY: Handle API errors gracefully
+                responseOutput.textContent = JSON.stringify({
+                    error: "Failed to process query",
+                    message: "Please try again later"
+                }, null, 2);
+                resultsSection.classList.remove('hidden');
+            } finally {
+                // Reset button state
+                submitBtn.disabled = false;
+                submitText.classList.remove('hidden');
+                loadingSpinner.classList.add('hidden');
+            }
+        });
+
+        // New query button handler
+        newQueryBtn.addEventListener('click', function() {
+            queryInput.value = '';
+            resultsSection.classList.add('hidden');
+            queryInput.focus();
+        });
+
+        // Auto-resize textarea
+        queryInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        });
+    })();
+    </script>
+</body>
+</html>

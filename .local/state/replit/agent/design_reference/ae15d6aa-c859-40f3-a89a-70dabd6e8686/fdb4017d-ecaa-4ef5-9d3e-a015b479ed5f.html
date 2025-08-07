@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bajaj Intelligent Claims Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'poppins': ['Poppins', 'sans-serif'],
+                    },
+                    colors: {
+                        'bajaj-blue': '#004C99',
+                        'light-gray': '#F5F5F5',
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 1s ease-in-out',
+                        'spin-slow': 'spin 2s linear infinite',
+                        'pulse-slow': 'pulse 2s infinite',
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .loading-overlay {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(5px);
+        }
+        
+        .drag-over {
+            border-color: #004C99 !important;
+            background-color: rgba(0, 76, 153, 0.05) !important;
+        }
+        
+        .file-upload-area {
+            transition: all 0.3s ease;
+        }
+        
+        .bajaj-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #F5F5F5;
+            border-top: 4px solid #004C99;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+    </style>
+</head>
+<body class="font-poppins bg-white min-h-screen">
+    <!-- Page Load Animation -->
+    <div id="loadingScreen" class="fixed inset-0 bg-white z-50 flex items-center justify-center">
+        <div class="text-center">
+            <div class="w-24 h-24 mx-auto mb-4 bg-bajaj-blue rounded-full flex items-center justify-center animate-fade-in">
+                <i class="fas fa-shield-alt text-white text-3xl animate-spin-slow"></i>
+            </div>
+            <h2 class="text-bajaj-blue text-xl font-semibold animate-fade-in">Bajaj Insurance</h2>
+            <p class="text-gray-600 animate-fade-in">Loading Claims Assistant...</p>
+        </div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav class="bg-white shadow-md border-b border-light-gray sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <div class="bg-bajaj-blue rounded-lg p-2 mr-3">
+                        <i class="fas fa-shield-alt text-white text-lg"></i>
+                    </div>
+                    <span class="text-bajaj-blue font-bold text-lg">Bajaj</span>
+                </div>
+                
+                <!-- Center Title -->
+                <div class="hidden md:block">
+                    <h1 class="text-bajaj-blue font-semibold text-lg">Bajaj Intelligent Claims Assistant</h1>
+                </div>
+                
+                <!-- Navigation Menu -->
+                <div class="hidden md:flex space-x-6">
+                    <a href="#" class="text-gray-700 hover:text-bajaj-blue font-medium transition-colors">Home</a>
+                    <a href="#" class="text-gray-700 hover:text-bajaj-blue font-medium transition-colors">About</a>
+                    <a href="#" class="text-gray-700 hover:text-bajaj-blue font-medium transition-colors">Contact</a>
+                </div>
+                
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden">
+                    <button id="mobileMenuBtn" class="text-gray-700 hover:text-bajaj-blue">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden md:hidden bg-white border-t border-light-gray">
+            <div class="px-4 py-3 space-y-3">
+                <div class="text-center mb-3">
+                    <h1 class="text-bajaj-blue font-semibold">Intelligent Claims Assistant</h1>
+                </div>
+                <a href="#" class="block text-gray-700 hover:text-bajaj-blue font-medium">Home</a>
+                <a href="#" class="block text-gray-700 hover:text-bajaj-blue font-medium">About</a>
+                <a href="#" class="block text-gray-700 hover:text-bajaj-blue font-medium">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-8 max-w-4xl">
+        <div id="mainContent" class="opacity-0">
+            <!-- Header Section -->
+            <div class="text-center mb-12">
+                <h1 class="text-4xl md:text-5xl font-bold text-bajaj-blue mb-4">
+                    AI-Powered Claims Processing
+                </h1>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+                    Upload your insurance documents and describe your claim. Our AI assistant will process your request instantly and provide detailed analysis.
+                </p>
+            </div>
+
+            <!-- PDF Upload Section -->
+            <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 mb-8">
+                <h2 class="text-2xl font-semibold text-bajaj-blue mb-4 flex items-center">
+                    <i class="fas fa-file-pdf text-red-500 mr-3"></i>
+                    Upload Insurance Documents
+                </h2>
+                
+                <div id="uploadArea" class="file-upload-area border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-bajaj-blue hover:bg-blue-50 cursor-pointer transition-all">
+                    <div id="uploadContent">
+                        <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
+                        <p class="text-lg font-medium text-gray-700 mb-2">Drop your PDF files here or click to browse</p>
+                        <p class="text-gray-500">Supported formats: PDF (Max 10MB)</p>
+                        <input type="file" id="fileInput" class="hidden" accept=".pdf" multiple>
+                    </div>
+                    
+                    <div id="uploadSuccess" class="hidden">
+                        <i class="fas fa-check-circle text-4xl text-green-500 mb-4"></i>
+                        <p class="text-lg font-medium text-green-700 mb-2">Files uploaded successfully!</p>
+                        <div id="fileList" class="text-sm text-gray-600"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Query Input Section -->
+            <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 mb-8">
+                <h2 class="text-2xl font-semibold text-bajaj-blue mb-4 flex items-center">
+                    <i class="fas fa-comments text-bajaj-blue mr-3"></i>
+                    Describe Your Claim
+                </h2>
+                
+                <form id="claimsForm">
+                    <div class="mb-6">
+                        <label for="queryInput" class="block text-sm font-medium text-gray-700 mb-2">
+                            Claim Details
+                        </label>
+                        <textarea 
+                            id="queryInput" 
+                            rows="6" 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bajaj-blue focus:border-bajaj-blue resize-none transition-colors"
+                            placeholder="46-year-old male, knee surgery in Pune, 3-month-old insurance policy. Please provide details about your medical condition, treatment received, hospital information, and any other relevant details for your insurance claim."
+                            required
+                        ></textarea>
+                    </div>
+                    
+                    <button 
+                        type="submit" 
+                        id="submitBtn"
+                        class="w-full bg-bajaj-blue text-white font-semibold py-4 px-6 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-200 transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <i class="fas fa-robot mr-2"></i>
+                        Process Claim with AI
+                    </button>
+                </form>
+            </div>
+
+            <!-- Results Section -->
+            <div id="resultsSection" class="hidden bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+                <h2 class="text-2xl font-semibold text-bajaj-blue mb-4 flex items-center">
+                    <i class="fas fa-brain text-bajaj-blue mr-3"></i>
+                    AI Analysis Results
+                </h2>
+                
+                <div id="resultsContent" class="bg-gray-50 rounded-lg p-4 border-l-4 border-bajaj-blue">
+                    <pre id="jsonOutput" class="text-sm text-gray-800 whitespace-pre-wrap font-mono bg-white p-4 rounded border overflow-x-auto"></pre>
+                </div>
+                
+                <div class="mt-6 flex flex-wrap gap-3">
+                    <button class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
+                        <i class="fas fa-download mr-2"></i>
+                        Download Report
+                    </button>
+                    <button class="bg-bajaj-blue text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-share mr-2"></i>
+                        Share Results
+                    </button>
+                    <button id="newClaimBtn" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                        <i class="fas fa-plus mr-2"></i>
+                        New Claim
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Loading Overlay -->
+    <div id="processingOverlay" class="hidden fixed inset-0 loading-overlay z-40 flex items-center justify-center">
+        <div class="bg-white rounded-xl p-8 shadow-2xl text-center max-w-sm mx-4">
+            <div class="bajaj-spinner mx-auto mb-6"></div>
+            <h3 class="text-xl font-semibold text-bajaj-blue mb-2">Processing Your Claim</h3>
+            <p class="text-gray-600 mb-4">Our AI is analyzing your documents and claim details...</p>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div id="progressBar" class="bg-bajaj-blue h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+            <p id="progressText" class="text-sm text-gray-500 mt-2">Initializing...</p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-light-gray border-t border-gray-200 py-6 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-gray-600">
+                © 2025 Bajaj Auto Ltd. | AI-Powered Claims Processing
+            </p>
+            <div class="mt-2 flex justify-center space-x-4 text-sm text-gray-500">
+                <a href="#" class="hover:text-bajaj-blue transition-colors">Privacy Policy</a>
+                <span>|</span>
+                <a href="#" class="hover:text-bajaj-blue transition-colors">Terms of Service</a>
+                <span>|</span>
+                <a href="#" class="hover:text-bajaj-blue transition-colors">Support</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        (function() {
+            // Page Load Animation
+            window.addEventListener('load', function() {
+                setTimeout(() => {
+                    document.getElementById('loadingScreen').style.display = 'none';
+                    document.getElementById('mainContent').style.opacity = '1';
+                    document.getElementById('mainContent').style.transition = 'opacity 0.5s ease-in-out';
+                }, 2000);
+            });
+
+            // Mobile Menu Toggle
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const mobileMenu = document.getElementById('mobileMenu');
+            
+            mobileMenuBtn.addEventListener('click', function() {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // File Upload Functionality
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+            const uploadContent = document.getElementById('uploadContent');
+            const uploadSuccess = document.getElementById('uploadSuccess');
+            const fileList = document.getElementById('fileList');
+            let uploadedFiles = [];
+
+            uploadArea.addEventListener('click', () => fileInput.click());
+            
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                uploadArea.classList.add('drag-over');
+            });
+            
+            uploadArea.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                uploadArea.classList.remove('drag-over');
+            });
+            
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                uploadArea.classList.remove('drag-over');
+                handleFiles(e.dataTransfer.files);
+            });
+            
+            fileInput.addEventListener('change', function(e) {
+                handleFiles(e.target.files);
+            });
+
+            function handleFiles(files) {
+                const validFiles = Array.from(files).filter(file => file.type === 'application/pdf');
+                
+                if (validFiles.length === 0) {
+                    alert('Please upload only PDF files.');
+                    return;
+                }
+                
+                uploadedFiles = validFiles;
+                uploadContent.classList.add('hidden');
+                uploadSuccess.classList.remove('hidden');
+                
+                const fileNames = validFiles.map(file => `• ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`).join('<br>');
+                fileList.innerHTML = fileNames;
+            }
+
+            // Mock sendQuery function
+            function sendQuery(query, files) {
+                return new Promise((resolve) => {
+                    // TODO: Implement actual API call to backend
+                    setTimeout(() => {
+                        const mockResponse = {
+                            "claim_id": "CLM-2025-" + Math.random().toString(36).substr(2, 9).toUpperCase(),
+                            "status": "processed",
+                            "patient_info": {
+                                "age": 46,
+                                "gender": "male",
+                                "location": "Pune"
+                            },
+                            "medical_details": {
+                                "procedure": "knee surgery",
+                                "category": "orthopedic",
+                                "severity": "moderate"
+                            },
+                            "policy_info": {
+                                "policy_age": "3 months",
+                                "coverage_status": "active",
+                                "waiting_period": "completed"
+                            },
+                            "claim_analysis": {
+                                "eligibility": "approved",
+                                "estimated_coverage": "85%",
+                                "estimated_amount": "₹1,25,000",
+                                "processing_time": "3-5 business days"
+                            },
+                            "documents_processed": files.length,
+                            "ai_confidence": "94.2%",
+                            "next_steps": [
+                                "Submit original hospital bills",
+                                "Provide discharge summary",
+                                "Schedule follow-up verification call"
+                            ],
+                            "timestamp": new Date().toISOString()
+                        };
+                        resolve(mockResponse);
+                    }, 2000);
+                });
+            }
+
+            // Form Submission
+            const claimsForm = document.getElementById('claimsForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const processingOverlay = document.getElementById('processingOverlay');
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            const resultsSection = document.getElementById('resultsSection');
+            const jsonOutput = document.getElementById('jsonOutput');
+
+            claimsForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const query = document.getElementById('queryInput').value.trim();
+                
+                if (!query) {
+                    alert('Please describe your claim details.');
+                    return;
+                }
+
+                // Show loading overlay
+                processingOverlay.classList.remove('hidden');
+                submitBtn.disabled = true;
+                
+                // Simulate progress
+                const progressSteps = [
+                    { progress: 20, text: "Analyzing documents..." },
+                    { progress: 45, text: "Processing claim details..." },
+                    { progress: 70, text: "Verifying policy information..." },
+                    { progress: 90, text: "Generating analysis report..." },
+                    { progress: 100, text: "Complete!" }
+                ];
+                
+                for (let i = 0; i < progressSteps.length; i++) {
+                    setTimeout(() => {
+                        progressBar.style.width = progressSteps[i].progress + '%';
+                        progressText.textContent = progressSteps[i].text;
+                    }, (i + 1) * 400);
+                }
+
+                try {
+                    const response = await sendQuery(query, uploadedFiles);
+                    
+                    // Hide loading and show results
+                    processingOverlay.classList.add('hidden');
+                    resultsSection.classList.remove('hidden');
+                    jsonOutput.textContent = JSON.stringify(response, null, 2);
+                    
+                    // Scroll to results
+                    resultsSection.scrollIntoView({ behavior: 'smooth' });
+                    
+                } catch (error) {
+                    console.error('Error processing claim:', error);
+                    alert('Error processing your claim. Please try again.');
+                    processingOverlay.classList.add('hidden');
+                } finally {
+                    submitBtn.disabled = false;
+                }
+            });
+
+            // New Claim Button
+            document.getElementById('newClaimBtn').addEventListener('click', function() {
+                // Reset form
+                document.getElementById('queryInput').value = '';
+                uploadedFiles = [];
+                uploadContent.classList.remove('hidden');
+                uploadSuccess.classList.add('hidden');
+                resultsSection.classList.add('hidden');
+                fileInput.value = '';
+                
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        })();
+    </script>
+</body>
+</html>

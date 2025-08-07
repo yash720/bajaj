@@ -1,0 +1,17 @@
+fastapi
+uvicorn
+PyMuPDF
+tensorflow
+tf-keras
+pdfplumber 
+python-docx 
+sentence-transformers 
+transformers 
+torch 
+nltk 
+pdf2image 
+pytesseract
+fasttext-wheel 
+cachetools 
+pillow
+hf_xet

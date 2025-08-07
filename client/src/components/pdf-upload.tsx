@@ -29,6 +29,10 @@ export default function PDFUpload({ onFileSelect, selectedFile }: PDFUploadProps
     if (files.length > 0) {
       const file = files[0];
       if (file.type === "application/pdf") {
+        if (file.size > 10 * 1024 * 1024) { // 10MB limit
+          alert("File size must be less than 10MB.");
+          return;
+        }
         onFileSelect(file);
       } else {
         alert("Please upload only PDF files.");
@@ -41,6 +45,10 @@ export default function PDFUpload({ onFileSelect, selectedFile }: PDFUploadProps
     if (files && files.length > 0) {
       const file = files[0];
       if (file.type === "application/pdf") {
+        if (file.size > 10 * 1024 * 1024) { // 10MB limit
+          alert("File size must be less than 10MB.");
+          return;
+        }
         onFileSelect(file);
       } else {
         alert("Please upload only PDF files.");

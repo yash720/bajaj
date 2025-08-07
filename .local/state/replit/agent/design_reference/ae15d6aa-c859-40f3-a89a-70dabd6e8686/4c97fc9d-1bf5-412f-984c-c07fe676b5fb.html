@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bajaj Intelligent Claims Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'bajaj-blue': '#004C99',
+                        'bajaj-light-gray': '#F5F5F5',
+                    },
+                    fontFamily: {
+                        'poppins': ['Poppins', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in-spin': 'fadeInSpin 2s ease-in-out',
+                        'pulse-slow': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        fadeInSpin: {
+                            '0%': { opacity: '0', transform: 'rotate(0deg) scale(0.8)' },
+                            '50%': { opacity: '0.8', transform: 'rotate(180deg) scale(1.1)' },
+                            '100%': { opacity: '1', transform: 'rotate(360deg) scale(1)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .loading-spinner {
+            border: 4px solid #F5F5F5;
+            border-top: 4px solid #004C99;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .code-block {
+            background: #1e1e1e;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body class="font-poppins bg-bajaj-light-gray min-h-screen">
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="fixed inset-0 bg-white z-50 flex items-center justify-center">
+        <div class="text-center">
+            <div class="animate-fade-in-spin mb-4">
+                <!-- Bajaj Logo placeholder - using the uploaded logo -->
+                <img src="data:image/png;base64,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" 
+                     alt="Bajaj Logo" class="w-20 h-20 mx-auto">
+            </div>
+            <p class="text-bajaj-blue text-lg font-medium">Loading Bajaj Intelligent Claims Assistant...</p>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="mainApp" class="hidden">
+        <!-- Navigation Bar -->
+        <nav class="bg-white shadow-lg border-b-2 border-bajaj-blue">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <!-- Logo -->
+                    <div class="flex-shrink-0 flex items-center">
+                        <img src="data:image/png;base64,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" 
+                             alt="Bajaj Logo" class="h-10 w-auto">
+                    </div>
+
+                    <!-- Center Title -->
+                    <div class="flex-1 flex justify-center">
+                        <h1 class="text-xl font-semibold text-bajaj-blue">Bajaj Intelligent Claims Assistant</h1>
+                    </div>
+
+                    <!-- Navigation Links -->
+                    <div class="hidden md:block">
+                        <div class="ml-10 flex items-baseline space-x-4">
+                            <a href="#" class="text-bajaj-blue hover:bg-bajaj-blue hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Home</a>
+                            <a href="#" class="text-gray-700 hover:bg-bajaj-blue hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">About</a>
+                            <a href="#" class="text-gray-700 hover:bg-bajaj-blue hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Contact</a>
+                        </div>
+                    </div>
+
+                    <!-- Mobile menu button -->
+                    <div class="md:hidden">
+                        <button id="mobile-menu-button" class="text-gray-700 hover:text-bajaj-blue">
+                            <i class="fas fa-bars text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Mobile menu -->
+                <div id="mobile-menu" class="md:hidden hidden">
+                    <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-gray-50">
+                        <a href="#" class="text-bajaj-blue block px-3 py-2 rounded-md text-base font-medium">Home</a>
+                        <a href="#" class="text-gray-700 hover:text-bajaj-blue block px-3 py-2 rounded-md text-base font-medium">About</a>
+                        <a href="#" class="text-gray-700 hover:text-bajaj-blue block px-3 py-2 rounded-md text-base font-medium">Contact</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Hero Section -->
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">AI-Powered Claims Processing</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Submit your insurance query and receive instant AI-powered analysis with comprehensive claim evaluation and recommendations.
+                </p>
+            </div>
+
+            <!-- Query Form -->
+            <div class="bg-white rounded-lg shadow-xl p-8 mb-8">
+                <form id="claimForm" class="space-y-6">
+                    <div>
+                        <label for="claimQuery" class="block text-lg font-medium text-gray-900 mb-2">
+                            Insurance Claim Query
+                        </label>
+                        <textarea 
+                            id="claimQuery" 
+                            name="claimQuery" 
+                            rows="6" 
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-bajaj-blue focus:border-bajaj-blue transition-colors duration-200 resize-none"
+                            placeholder="46-year-old male, knee surgery in Pune, 3-month-old insurance policy"
+                            required
+                        ></textarea>
+                        <p class="mt-2 text-sm text-gray-500">
+                            Provide detailed information about your insurance claim including age, medical procedure, location, and policy details.
+                        </p>
+                    </div>
+
+                    <div class="flex justify-center">
+                        <button 
+                            type="submit" 
+                            id="submitBtn"
+                            class="bg-bajaj-blue text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-blue-700 transform hover:scale-105 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-blue-300 shadow-lg"
+                        >
+                            <i class="fas fa-search mr-2"></i>
+                            Process Claim
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="hidden">
+                <div class="bg-white rounded-lg shadow-xl p-12">
+                    <div class="text-center">
+                        <div class="loading-spinner mx-auto mb-6"></div>
+                        <h3 class="text-2xl font-semibold text-bajaj-blue mb-2">Processing Your Claim</h3>
+                        <p class="text-gray-600">Our AI is analyzing your query and checking policy details...</p>
+                        
+                        <!-- Progress Steps -->
+                        <div class="mt-8 space-y-4">
+                            <div class="flex items-center justify-center space-x-3" id="step1">
+                                <div class="w-4 h-4 bg-bajaj-blue rounded-full animate-pulse"></div>
+                                <span class="text-sm text-gray-700">Parsing claim information</span>
+                            </div>
+                            <div class="flex items-center justify-center space-x-3" id="step2">
+                                <div class="w-4 h-4 bg-gray-300 rounded-full"></div>
+                                <span class="text-sm text-gray-500">Checking policy validity</span>
+                            </div>
+                            <div class="flex items-center justify-center space-x-3" id="step3">
+                                <div class="w-4 h-4 bg-gray-300 rounded-full"></div>
+                                <span class="text-sm text-gray-500">Generating recommendations</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="resultsSection" class="hidden">
+                <div class="bg-white rounded-lg shadow-xl overflow-hidden">
+                    <div class="bg-bajaj-blue text-white px-8 py-4">
+                        <h3 class="text-2xl font-semibold flex items-center">
+                            <i class="fas fa-check-circle mr-3"></i>
+                            Claim Analysis Complete
+                        </h3>
+                    </div>
+                    
+                    <div class="p-8">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                            <!-- Summary Cards -->
+                            <div class="bg-green-50 border border-green-200 rounded-lg p-6">
+                                <div class="flex items-center mb-2">
+                                    <i class="fas fa-thumbs-up text-green-600 text-xl mr-3"></i>
+                                    <h4 class="text-lg font-semibold text-green-800">Claim Decision</h4>
+                                </div>
+                                <p id="decision" class="text-2xl font-bold text-green-700">APPROVED</p>
+                            </div>
+
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                                <div class="flex items-center mb-2">
+                                    <i class="fas fa-rupee-sign text-bajaj-blue text-xl mr-3"></i>
+                                    <h4 class="text-lg font-semibold text-bajaj-blue">Claim Amount</h4>
+                                </div>
+                                <p id="amount" class="text-2xl font-bold text-bajaj-blue">₹85,000</p>
+                            </div>
+                        </div>
+
+                        <!-- Detailed Response -->
+                        <div class="space-y-6">
+                            <div>
+                                <h4 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                                    <i class="fas fa-info-circle text-bajaj-blue mr-2"></i>
+                                    Query Details
+                                </h4>
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <pre id="queryDetails" class="text-sm text-gray-700 whitespace-pre-wrap font-mono"></pre>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h4 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                                    <i class="fas fa-gavel text-bajaj-blue mr-2"></i>
+                                    Justification
+                                </h4>
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <p id="justification" class="text-gray-700"></p>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h4 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                                    <i class="fas fa-file-contract text-bajaj-blue mr-2"></i>
+                                    Relevant Policy Clauses
+                                </h4>
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <div id="relevantClauses" class="space-y-2"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Raw JSON Response -->
+                        <div class="mt-8">
+                            <details class="group">
+                                <summary class="cursor-pointer text-lg font-semibold text-gray-900 mb-3 flex items-center hover:text-bajaj-blue transition-colors">
+                                    <i class="fas fa-code text-bajaj-blue mr-2"></i>
+                                    Raw JSON Response
+                                    <i class="fas fa-chevron-down ml-2 transform group-open:rotate-180 transition-transform"></i>
+                                </summary>
+                                <div class="code-block p-4 text-green-400 overflow-x-auto">
+                                    <pre id="jsonResponse" class="text-sm"></pre>
+                                </div>
+                            </details>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
+                            <button class="bg-bajaj-blue text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center">
+                                <i class="fas fa-download mr-2"></i>
+                                Download Report
+                            </button>
+                            <button id="newQueryBtn" class="bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-700 transition-colors duration-200 flex items-center justify-center">
+                                <i class="fas fa-plus mr-2"></i>
+                                New Query
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-bajaj-blue text-white py-6 mt-16">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <p class="text-sm">© 2025 Bajaj Auto Ltd. | AI-Powered Claims Processing</p>
+                    <div class="mt-2 space-x-4 text-sm">
+                        <a href="#" class="hover:text-gray-300 transition-colors">Privacy Policy</a>
+                        <span>|</span>
+                        <a href="#" class="hover:text-gray-300 transition-colors">Terms of Service</a>
+                        <span>|</span>
+                        <a href="#" class="hover:text-gray-300 transition-colors">Support</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Mock sendQuery function to simulate backend call
+        function sendQuery(query) {
+            return new Promise((resolve) => {
+                // Simulate API delay
+                setTimeout(() => {
+                    const mockResponse = {
+                        QueryDetails: {
+                            PatientAge: "46 years",
+                            MedicalProcedure: "Knee Surgery",
+                            Location: "Pune",
+                            PolicyAge: "3 months",
+                            EstimatedCost: "₹85,000"
+                        },
+                        Decision: "APPROVED",
+                        Amount: "₹85,000",
+                        Justification: "The claim meets all policy requirements. The knee surgery is covered under the medical benefits section, and the policy has completed the mandatory waiting period. The treatment was performed at an approved network hospital in Pune.",
+                        RelevantClauses: [
+                            "Section 4.2: Orthopedic procedures coverage after 90-day waiting period",
+                            "Section 6.1: Network hospital coverage at 100% reimbursement",
+                            "Section 8.3: Pre-authorization not required for emergency procedures"
+                        ]
+                    };
+                    resolve(mockResponse);
+                }, 2000);
+            });
+        }
+
+        // DOM elements
+        const loadingScreen = document.getElementById('loadingScreen');
+        const mainApp = document.getElementById('mainApp');
+        const claimForm = document.getElementById('claimForm');
+        const loadingState = document.getElementById('loadingState');
+        const resultsSection = document.getElementById('resultsSection');
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const newQueryBtn = document.getElementById('newQueryBtn');
+
+        // Page load animation
+        (function() {
+            setTimeout(() => {
+                loadingScreen.classList.add('hidden');
+                mainApp.classList.remove('hidden');
+            }, 2500);
+        })();
+
+        // Mobile menu toggle
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Form submission
+        claimForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const query = document.getElementById('claimQuery').value;
+            
+            if (!query.trim()) {
+                alert('Please enter your insurance query.');
+                return;
+            }
+
+            // Show loading state
+            resultsSection.classList.add('hidden');
+            loadingState.classList.remove('hidden');
+
+            // Animate progress steps
+            const steps = ['step1', 'step2', 'step3'];
+            
+            setTimeout(() => {
+                const step2 = document.getElementById('step2');
+                step2.querySelector('.w-4').classList.remove('bg-gray-300');
+                step2.querySelector('.w-4').classList.add('bg-bajaj-blue', 'animate-pulse');
+                step2.querySelector('span').classList.remove('text-gray-500');
+                step2.querySelector('span').classList.add('text-gray-700');
+            }, 700);
+
+            setTimeout(() => {
+                const step3 = document.getElementById('step3');
+                step3.querySelector('.w-4').classList.remove('bg-gray-300');
+                step3.querySelector('.w-4').classList.add('bg-bajaj-blue', 'animate-pulse');
+                step3.querySelector('span').classList.remove('text-gray-500');
+                step3.querySelector('span').classList.add('text-gray-700');
+            }, 1400);
+
+            try {
+                // Call mock API
+                const response = await sendQuery(query);
+
+                // Hide loading state
+                loadingState.classList.add('hidden');
+                
+                // Populate results
+                document.getElementById('decision').textContent = response.Decision;
+                document.getElementById('amount').textContent = response.Amount;
+                document.getElementById('queryDetails').textContent = JSON.stringify(response.QueryDetails, null, 2);
+                document.getElementById('justification').textContent = response.Justification;
+                
+                // Populate relevant clauses
+                const clausesContainer = document.getElementById('relevantClauses');
+                clausesContainer.innerHTML = '';
+                response.RelevantClauses.forEach(clause => {
+                    const clauseElement = document.createElement('div');
+                    clauseElement.className = 'flex items-start space-x-2';
+                    clauseElement.innerHTML = `
+                        <i class="fas fa-check text-green-600 mt-1"></i>
+                        <span class="text-sm text-gray-700">${clause}</span>
+                    `;
+                    clausesContainer.appendChild(clauseElement);
+                });
+
+                // Show formatted JSON response
+                document.getElementById('jsonResponse').textContent = JSON.stringify(response, null, 2);
+                
+                // Show results
+                resultsSection.classList.remove('hidden');
+                
+                // Scroll to results
+                resultsSection.scrollIntoView({ behavior: 'smooth' });
+
+            } catch (error) {
+                console.error('Error processing claim:', error);
+                loadingState.classList.add('hidden');
+                alert('Error processing your claim. Please try again.');
+            }
+        });
+
+        // New query button
+        newQueryBtn.addEventListener('click', () => {
+            document.getElementById('claimQuery').value = '';
+            resultsSection.classList.add('hidden');
+            
+            // Reset progress steps
+            ['step1', 'step2', 'step3'].forEach(stepId => {
+                const step = document.getElementById(stepId);
+                step.querySelector('.w-4').className = 'w-4 h-4 bg-gray-300 rounded-full';
+                step.querySelector('span').className = 'text-sm text-gray-500';
+            });
+            
+            // Reset step 1
+            const step1 = document.getElementById('step1');
+            step1.querySelector('.w-4').classList.add('bg-bajaj-blue', 'animate-pulse');
+            step1.querySelector('span').classList.remove('text-gray-500');
+            step1.querySelector('span').classList.add('text-gray-700');
+            
+            // Scroll to form
+            claimForm.scrollIntoView({ behavior: 'smooth' });
+        });
+    </script>
+</body>
+</html>

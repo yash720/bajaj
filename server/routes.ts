@@ -4,10 +4,14 @@ import { storage } from "./storage";
 import { insertClaimQuerySchema, claimResponseSchema, type ClaimResponse } from "@shared/schema";
 import multer from "multer";
 import path from "path";
+import axios from "axios";
+import FormData from "form-data";
+import fs from "fs";
+import { uploadToCloudinary, downloadFromCloudinary } from "./cloudinary";
 
-// Configure multer for file uploads
+// Configure multer for memory storage (for Cloudinary upload)
 const upload = multer({
-  dest: 'uploads/',
+  storage: multer.memoryStorage(),
   fileFilter: (req, file, cb) => {
     if (file.mimetype === 'application/pdf') {
       cb(null, true);
@@ -20,109 +24,138 @@ const upload = multer({
   },
 });
 
-// Mock function to simulate AI processing
-async function processClaimQuery(query: string, pdfFileName?: string): Promise<ClaimResponse> {
-  // Simulate processing delay
-  await new Promise(resolve => setTimeout(resolve, 2000));
-
-  // Parse query to extract information
-  const extractInfo = (query: string) => {
-    const ageMatch = query.match(/(\d+)(?:-year-old|F|M|\s+(?:male|female))/i);
-    const genderMatch = query.match(/(male|female|M|F)/i);
-    const procedureMatch = query.match(/(surgery|care|procedure|treatment|maternity|knee|hip|cardiac|dental)[\s\w]*/i);
-    const locationMatch = query.match(/(Mumbai|Delhi|Pune|Bangalore|Chennai|Kolkata|Hyderabad|[\w\s]+(?:\s+city|\s+hospital))/i);
-    const policyMatch = query.match(/(\d+)-month/i);
-
-    return {
-      age: ageMatch ? ageMatch[1] : null,
-      gender: genderMatch ? (genderMatch[1].toLowerCase().startsWith('m') ? 'Male' : 'Female') : null,
-      procedure: procedureMatch ? procedureMatch[0].trim() : null,
-      location: locationMatch ? locationMatch[1] : null,
-      policy_duration: policyMatch ? policyMatch[1] : null,
-    };
-  };
-
-  const queryDetails = extractInfo(query);
-  
-  // Determine decision based on query content and policy duration
-  const policyMonths = parseInt(queryDetails.policy_duration || "0");
-  const isMaternity = query.toLowerCase().includes('maternity');
-  const isAccident = query.toLowerCase().includes('accident');
-  
-  let decision = "Approved";
-  let amount = 500000;
-  let justification = "The claim meets all policy requirements and coverage terms.";
-  
-  // Apply business logic
-  if (isMaternity && policyMonths < 36) {
-    decision = "Rejected";
-    amount = null;
-    justification = `Maternity care has a 36-month waiting period. Policy duration is ${policyMonths} months.`;
-  } else if (queryDetails.procedure?.toLowerCase().includes('pre-existing') && policyMonths < 24) {
-    decision = "Rejected";
-    amount = null;
-    justification = `Pre-existing conditions have a 24-month waiting period. Policy duration is ${policyMonths} months.`;
-  } else if (isAccident) {
-    decision = "Approved";
-    amount = 500000;
-    justification = "Accident-related procedures are covered without waiting period.";
-  }
-
-  const mockResponse: ClaimResponse = {
-    QueryDetails: queryDetails,
-    Decision: decision,
-    Amount: amount,
-    Justification: justification,
-    RelevantClauses: [
-      {
-        text: "Section 4.2: Orthopedic procedures coverage after 90-day waiting period",
-        source: "policy_document.pdf",
-        position: 1
-      },
-      {
-        text: "Section 6.1: Network hospital coverage at 100% reimbursement",
-        source: "policy_document.pdf",
-        position: 2
-      },
-      {
-        text: "Section 8.3: Pre-authorization not required for emergency procedures",
-        source: "policy_document.pdf", 
-        position: 3
-      }
-    ]
-  };
-
-  return mockResponse;
-}
+// Remove the mock processClaimQuery function
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
   // Submit claim query with optional PDF
   app.post("/api/claims", upload.single('pdf'), async (req, res) => {
     try {
+      console.log("Received claim request:", { 
+        hasFile: !!req.file, 
+        fileName: req.file?.originalname,
+        query: req.body.query 
+      });
+
       const { query } = req.body;
-      
       if (!query) {
         return res.status(400).json({ message: "Query is required" });
       }
 
-      const pdfFileName = req.file?.originalname;
-      
-      // Process the claim query
-      const response = await processClaimQuery(query, pdfFileName);
-      
-      // Store the query and response
-      const claimQuery = await storage.createClaimQuery({
-        query,
-        pdfFileName,
-        response,
-      });
+      let cloudinaryUrl: string | null = null;
+      let pdfFileName: string | null = null;
 
-      res.json({
-        id: claimQuery.id,
-        ...response
-      });
+      // Upload PDF to Cloudinary if provided
+      if (req.file) {
+        try {
+          console.log("Uploading file to Cloudinary...");
+          cloudinaryUrl = await uploadToCloudinary(req.file);
+          pdfFileName = req.file.originalname;
+          console.log('File uploaded to Cloudinary:', cloudinaryUrl);
+        } catch (uploadError) {
+          console.error('Error uploading to Cloudinary:', uploadError);
+          return res.status(500).json({ message: "Failed to upload file" });
+        }
+      } else {
+        console.log("No file provided, will use default content");
+      }
 
+      // Prepare data for Python API
+      const form = new FormData();
+      form.append('query', query);
+      
+      if (cloudinaryUrl) {
+        // Download file from Cloudinary and send to Python API
+        try {
+          const fileBuffer = await downloadFromCloudinary(cloudinaryUrl);
+          form.append('file', fileBuffer, {
+            filename: pdfFileName || 'document.pdf',
+            contentType: 'application/pdf'
+          });
+        } catch (downloadError) {
+          console.error('Error downloading from Cloudinary:', downloadError);
+          return res.status(500).json({ message: "Failed to process uploaded file" });
+        }
+      } else {
+        // Create a temporary file with default content if no PDF is provided
+        const defaultContent = `Insurance Policy Document
+
+This is a sample insurance policy document containing standard terms and conditions.
+
+1. Hospitalization Coverage
+   - Inpatient hospitalization is covered up to the sum insured
+   - Pre and post hospitalization expenses are covered
+   - Room rent and boarding expenses are covered
+
+2. Waiting Periods
+   - Pre-existing conditions: 36-month waiting period
+   - Maternity benefits: 24-month waiting period
+   - Specific diseases: 12-month waiting period
+
+3. Exclusions
+   - Cosmetic surgery
+   - Dental treatment (except due to accident)
+   - Treatment outside India (except emergency)
+
+4. Claim Process
+   - Submit claim within 30 days of discharge
+   - Provide all medical documents
+   - Cashless facility available at network hospitals`;
+        
+        form.append('file', Buffer.from(defaultContent), {
+          filename: 'default_policy.txt',
+          contentType: 'text/plain'
+        });
+      }
+
+      // Send to Python API
+      console.log("Sending request to Python API...");
+      const pythonApiUrl = 'http://127.0.0.1:8000/process';
+      
+      try {
+        const response = await axios.post(pythonApiUrl, form, {
+          headers: form.getHeaders(),
+          maxContentLength: Infinity,
+          maxBodyLength: Infinity,
+          timeout: 30000, // 30 second timeout
+        });
+        
+        console.log("Python API response received:", response.status);
+        console.log("Response data:", JSON.stringify(response.data, null, 2));
+        
+        // Store the query and response with Cloudinary URL
+        const claimQuery = await storage.createClaimQuery({
+          query,
+          pdfFileName,
+          cloudinaryUrl,
+          response: response.data,
+        });
+        
+        console.log("Claim stored in database with ID:", claimQuery.id);
+        
+        res.json({
+          id: claimQuery.id,
+          ...response.data
+        });
+      } catch (pythonError) {
+        console.error("Error calling Python API:", pythonError);
+        if (pythonError.response) {
+          console.error("Python API error response:", pythonError.response.data);
+          return res.status(500).json({ 
+            message: "Python API error", 
+            error: pythonError.response.data 
+          });
+        } else if (pythonError.code === 'ECONNREFUSED') {
+          return res.status(500).json({ 
+            message: "Python API is not running. Please start insurance_api.py" 
+          });
+        } else {
+          return res.status(500).json({ 
+            message: "Failed to process claim with Python API",
+            error: pythonError.message 
+          });
+        }
+      }
     } catch (error) {
       console.error("Error processing claim:", error);
       res.status(500).json({ message: "Internal server error processing claim" });
