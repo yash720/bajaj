@@ -57,16 +57,16 @@ const teamMembers: TeamMember[] = [
 
 export default function Contact() {
   return (
-    <div className="min-h-screen bg-bajaj-light-gray">
+    <div className="min-h-screen bg-bajaj-blue">
       <Navigation />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header Section */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl font-bold text-white mb-4">
             Meet Our Team
           </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-200 max-w-3xl mx-auto">
             The talented developers behind Bajaj Intelligent Claims Assistant
           </p>
         </div>
@@ -151,42 +151,42 @@ export default function Contact() {
         </div>
 
         {/* Contact Information */}
-        <div className="bg-white rounded-lg shadow-xl p-8">
+        <div className="bg-blue-800 rounded-lg shadow-xl p-8 border border-blue-600">
           <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+            <h2 className="text-2xl font-bold text-white mb-4">
               Get In Touch
             </h2>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-200 mb-6">
               Have questions about our AI-powered claims processing system? We'd love to hear from you!
             </p>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="text-center">
-                <div className="bg-bajaj-blue rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
-                  <Mail className="h-6 w-6 text-white" />
+                <div className="bg-white rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
+                  <Mail className="h-6 w-6 text-bajaj-blue" />
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-1">Email Us</h3>
-                <p className="text-gray-600 text-sm">
+                <h3 className="font-semibold text-white mb-1">Email Us</h3>
+                <p className="text-gray-200 text-sm">
                   Contact our team directly for support
                 </p>
               </div>
               
               <div className="text-center">
-                <div className="bg-bajaj-blue rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
-                  <Github className="h-6 w-6 text-white" />
+                <div className="bg-white rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
+                  <Github className="h-6 w-6 text-bajaj-blue" />
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-1">Open Source</h3>
-                <p className="text-gray-600 text-sm">
+                <h3 className="font-semibold text-white mb-1">Open Source</h3>
+                <p className="text-gray-200 text-sm">
                   Check out our code repositories
                 </p>
               </div>
               
               <div className="text-center">
-                <div className="bg-bajaj-blue rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
-                  <Linkedin className="h-6 w-6 text-white" />
+                <div className="bg-white rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
+                  <Linkedin className="h-6 w-6 text-bajaj-blue" />
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-1">Professional Network</h3>
-                <p className="text-gray-600 text-sm">
+                <h3 className="font-semibold text-white mb-1">Professional Network</h3>
+                <p className="text-gray-200 text-sm">
                   Connect with us professionally
                 </p>
               </div>

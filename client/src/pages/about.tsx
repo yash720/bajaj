@@ -37,16 +37,16 @@ export default function About() {
   ];
 
   return (
-    <div className="min-h-screen bg-bajaj-light-gray">
+    <div className="min-h-screen bg-bajaj-blue">
       <Navigation />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header Section */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl font-bold text-white mb-4">
             About Bajaj Intelligent Claims Assistant
           </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-200 max-w-3xl mx-auto">
             Revolutionizing insurance claim processing with artificial intelligence and machine learning
           </p>
         </div>
@@ -81,7 +81,7 @@ export default function About() {
 
         {/* Features Section */}
         <div className="mb-12">
-          <h2 className="text-3xl font-bold text-center text-gray-900 mb-8">
+          <h2 className="text-3xl font-bold text-center text-white mb-8">
             Key Features
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

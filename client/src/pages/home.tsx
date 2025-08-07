@@ -51,7 +51,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-bajaj-light-gray">
+    <div className="min-h-screen bg-bajaj-blue">
       <LoadingAnimation onComplete={() => setShowMainContent(true)} />
       
       {showMainContent && (
@@ -62,10 +62,10 @@ export default function Home() {
           <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             {/* Hero Section */}
             <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              <h2 className="text-4xl font-bold text-white mb-4">
                 AI-Powered Claims Processing
               </h2>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              <p className="text-xl text-gray-200 max-w-3xl mx-auto">
                 Submit your insurance query and receive instant AI-powered analysis with comprehensive claim evaluation and recommendations.
               </p>
             </div>
@@ -80,33 +80,33 @@ export default function Home() {
 
             {/* Loading State */}
             {isProcessing && (
-              <div className="bg-white rounded-lg shadow-xl p-12 mb-8">
+              <div className="bg-blue-800 rounded-lg shadow-xl p-12 mb-8 border border-blue-600">
                 <div className="text-center">
                   <div className="loading-spinner mx-auto mb-6"></div>
-                  <h3 className="text-2xl font-semibold text-bajaj-blue mb-2">
+                  <h3 className="text-2xl font-semibold text-white mb-2">
                     Processing Your Claim
                   </h3>
-                  <p className="text-gray-600">
+                  <p className="text-gray-200">
                     Our AI is analyzing your query and checking policy details...
                   </p>
                   
                   {/* Progress Steps */}
                   <div className="mt-8 space-y-4">
                     <div className="flex items-center justify-center space-x-3">
-                      <div className={`w-4 h-4 rounded-full ${processStep >= 1 ? 'bg-bajaj-blue animate-pulse' : 'bg-gray-300'}`}></div>
-                      <span className={`text-sm ${processStep >= 1 ? 'text-gray-700' : 'text-gray-500'}`}>
+                      <div className={`w-4 h-4 rounded-full ${processStep >= 1 ? 'bg-white animate-pulse' : 'bg-gray-500'}`}></div>
+                      <span className={`text-sm ${processStep >= 1 ? 'text-white' : 'text-gray-400'}`}>
                         Parsing claim information
                       </span>
                     </div>
                     <div className="flex items-center justify-center space-x-3">
-                      <div className={`w-4 h-4 rounded-full ${processStep >= 2 ? 'bg-bajaj-blue animate-pulse' : 'bg-gray-300'}`}></div>
-                      <span className={`text-sm ${processStep >= 2 ? 'text-gray-700' : 'text-gray-500'}`}>
+                      <div className={`w-4 h-4 rounded-full ${processStep >= 2 ? 'bg-white animate-pulse' : 'bg-gray-500'}`}></div>
+                      <span className={`text-sm ${processStep >= 2 ? 'text-white' : 'text-gray-400'}`}>
                         Checking policy validity
                       </span>
                     </div>
                     <div className="flex items-center justify-center space-x-3">
-                      <div className={`w-4 h-4 rounded-full ${processStep >= 3 ? 'bg-bajaj-blue animate-pulse' : 'bg-gray-300'}`}></div>
-                      <span className={`text-sm ${processStep >= 3 ? 'text-gray-700' : 'text-gray-500'}`}>
+                      <div className={`w-4 h-4 rounded-full ${processStep >= 3 ? 'bg-white animate-pulse' : 'bg-gray-500'}`}></div>
+                      <span className={`text-sm ${processStep >= 3 ? 'text-white' : 'text-gray-400'}`}>
                         Generating recommendations
                       </span>
                     </div>
