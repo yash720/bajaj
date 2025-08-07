@@ -17,7 +17,7 @@ export default function Navigation() {
               <img 
                 src={bajajLogoPath} 
                 alt="Bajaj Logo" 
-                className="h-10 w-auto cursor-pointer"
+                className="h-10 w-auto cursor-pointer logo-white"
               />
             </Link>
           </div>
