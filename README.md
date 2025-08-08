@@ -9,7 +9,7 @@ BajajBot is an intelligent insurance claim analysis system that processes insura
 - **📄 PDF Document Processing**: Upload and analyze insurance policy documents
 - **🤖 AI-Powered Analysis**: Uses NLP and machine learning for claim evaluation
 - **🌍 Multi-Language Support**: Supports multiple languages including Hindi, English, Spanish, French, etc.
-- **☁️ Cloud Storage**: Secure file storage using Cloudinary
+- **📄 File Processing**: Direct file processing without cloud storage
 - **📊 Real-time Analysis**: Instant claim decision and justification
 - **💾 Database Storage**: MongoDB integration for data persistence
 - **🎨 Modern UI**: Beautiful, responsive React frontend
@@ -35,8 +35,8 @@ BajajBot is an intelligent insurance claim analysis system that processes insura
 │  │   Server        │    │   File Handler  │    │    (Python API Call)    │  │
 │  └─────────────────┘    └─────────────────┘    └─────────────────────────┘  │
 │  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────────────┐  │
-│  │   Cloudinary    │    │   MongoDB       │    │    FormData Builder     │  │
-│  │   Upload/Download│   │   Storage       │    │    (File Processing)    │  │
+│   File Processing  │    │   MongoDB       │    │    FormData Builder     │  │
+│   (Direct)         │    │   Storage       │    │    (File Processing)    │  │
 │  └─────────────────┘    └─────────────────┘    └─────────────────────────┘  │
 └─────────────────────────────────────────────────────────────────────────────┘
                                     │
@@ -63,14 +63,14 @@ BajajBot is an intelligent insurance claim analysis system that processes insura
 │                              DATA STORAGE                                  │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────────────┐  │
-│  │   MongoDB       │    │   Cloudinary    │    │    Temporary Files      │  │
-│  │   Atlas         │    │   Cloud Storage │    │    (Local Processing)   │  │
-│  │   (Claim Data)  │    │   (PDF Files)   │    │                         │  │
+│   MongoDB       │    │   Local File      │    │    Temporary Files      │  │
+│   Atlas         │    │   Processing      │    │    (Local Processing)   │  │
+│   (Claim Data)  │    │   (Direct)        │    │                         │  │
 │  └─────────────────┘    └─────────────────┘    └─────────────────────────┘  │
 └─────────────────────────────────────────────────────────────────────────────┘
 
 📊 DATA FLOW:
-User Upload → Frontend Validation → Backend Processing → Cloudinary Storage → 
+User Upload → Frontend Validation → Backend Processing → Direct File Processing → 
 Python AI Analysis → MongoDB Storage → Results Display
 ```
 
@@ -91,7 +91,7 @@ BajajBot/
 ├── server/                 # Node.js Backend
 │   ├── routes.ts          # API Routes (/api/claims)
 │   ├── storage.ts         # MongoDB operations
-│   ├── cloudinary.ts      # Cloudinary file handling
+│   ├── fileProcessor.ts   # File processing utilities
 │   └── config.ts          # Environment configuration
 ├── insurance_api.py        # Python AI/ML API
 ├── shared/                 # Shared Types/Schemas
@@ -111,7 +111,7 @@ BajajBot/
 - **Node.js** with Express
 - **TypeScript** for type safety
 - **MongoDB** with Mongoose
-- **Cloudinary** for file storage
+- **Direct file processing** without cloud storage
 - **Multer** for file uploads
 
 ### AI/ML API
@@ -127,7 +127,7 @@ BajajBot/
 - Node.js (v16+)
 - Python (v3.8+)
 - MongoDB Atlas account
-- Cloudinary account
+- Local file system access
 
 ### 1. Clone Repository
 ```bash
@@ -147,10 +147,8 @@ pip install -r requirements.txt
 ### 3. Environment Setup
 Create a `.env` file in the root directory:
 ```env
-# Cloudinary Configuration
-CLOUDINARY_CLOUD_NAME=your_cloud_name
-CLOUDINARY_API_KEY=your_api_key
-CLOUDINARY_API_SECRET=your_api_secret
+# File Processing Configuration
+# No external cloud storage required
 
 # MongoDB Configuration
 DATABASE_URL=mongodb+srv://username:password@cluster.mongodb.net/
@@ -181,7 +179,7 @@ User Uploads PDF → Frontend Validation → Backend Processing → AI Analysis 
 
 ### 2. File Processing Pipeline
 1. **Upload**: User uploads insurance policy PDF
-2. **Cloudinary Storage**: File stored securely in cloud
+2. **Direct Processing**: File processed directly without cloud storage
 3. **Database**: File metadata stored in MongoDB
 4. **Python Processing**: AI models analyze document content
 5. **Analysis**: Extract clauses, evaluate claims, generate decisions
@@ -291,7 +289,7 @@ FormData:
   id: String,              // Unique claim ID
   query: String,           // User's insurance query
   pdfFileName: String,     // Original PDF filename
-  cloudinaryUrl: String,   // Cloudinary storage URL
+  pdfFileName: String,     // Original PDF filename
   response: Object,        // AI analysis results
   createdAt: Date          // Timestamp
 }
@@ -328,7 +326,7 @@ npm run build
    - Check if fasttext model exists: `lid.176.bin`
 
 2. **File Upload Issues**
-   - Verify Cloudinary credentials in .env
+   - Verify file upload permissions
    - Check file size limits (10MB max)
    - Ensure PDF format is correct
 
@@ -353,7 +351,7 @@ npm run build
 
 - **File Validation**: Only PDF files accepted
 - **Size Limits**: 10MB file size restriction
-- **Cloud Storage**: Secure file storage in Cloudinary
+- **Local Processing**: Direct file processing without cloud storage
 - **Input Sanitization**: Query text sanitized before processing
 
 ## 🤝 Contributing

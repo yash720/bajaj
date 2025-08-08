@@ -11,7 +11,6 @@ const claimQuerySchema = new mongoose.Schema({
   id: { type: String, required: true, unique: true },
   query: { type: String, required: true },
   pdfFileName: { type: String },
-  cloudinaryUrl: { type: String },
   response: { type: mongoose.Schema.Types.Mixed },
   createdAt: { type: Date, default: Date.now }
 });
@@ -27,7 +26,6 @@ export const storage = {
   async createClaimQuery(data: {
     query: string;
     pdfFileName?: string;
-    cloudinaryUrl?: string;
     response: any;
   }) {
     const id = generateId();

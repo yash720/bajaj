@@ -1,8 +1,9 @@
 import React, { memo } from "react";
-import { CheckCircle, IndianRupee, Info, Gavel, File, Code, Download, Plus, ChevronDown } from "lucide-react";
+import { CheckCircle, IndianRupee, Info, Gavel, File, Code, Download, Plus, ChevronDown, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import type { ClaimResponse } from "@shared/schema";
 
 interface ResultsDisplayProps {
@@ -11,7 +12,7 @@ interface ResultsDisplayProps {
 }
 
 const ResultsDisplay = memo(function ResultsDisplay({ results, onNewQuery }: ResultsDisplayProps) {
-  const isApproved = results.Decision === "APPROVED";
+  const isApproved = results.Decision?.toUpperCase() === "APPROVED" || results.Decision?.toUpperCase() === "APPROVED";
   
   // Debug: Log the results to see the structure (only in development)
   if (process.env.NODE_ENV === 'development') {
@@ -34,6 +35,18 @@ const ResultsDisplay = memo(function ResultsDisplay({ results, onNewQuery }: Res
       </div>
       
       <div className="p-8">
+        {/* Debug Information (Development Only) */}
+        {process.env.NODE_ENV === 'development' && (
+          <Alert className="mb-6 bg-blue-50 border-blue-200">
+            <AlertCircle className="h-4 w-4 text-blue-600" />
+            <AlertDescription className="text-blue-800">
+              <strong>Debug Info:</strong> Decision: "{results.Decision}" | 
+              RelevantClauses: {relevantClauses.length} items | 
+              Amount: {results.Amount || 'N/A'}
+            </AlertDescription>
+          </Alert>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           {/* Decision Card */}
           <Card className={`${isApproved ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
@@ -45,7 +58,7 @@ const ResultsDisplay = memo(function ResultsDisplay({ results, onNewQuery }: Res
             </CardHeader>
             <CardContent>
               <p className={`text-2xl font-bold ${isApproved ? 'text-green-700' : 'text-red-700'}`}>
-                {results.Decision}
+                {results.Decision || 'No Decision'}
               </p>
             </CardContent>
           </Card>
@@ -78,9 +91,18 @@ const ResultsDisplay = memo(function ResultsDisplay({ results, onNewQuery }: Res
             </CardHeader>
             <CardContent>
               <div className="bg-gray-50 rounded-lg p-4">
-                <pre className="text-sm text-gray-700 whitespace-pre-wrap font-mono">
-                  {JSON.stringify(results.QueryDetails, null, 2)}
-                </pre>
+                {results.QueryDetails ? (
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {Object.entries(results.QueryDetails).map(([key, value]) => (
+                      <div key={key} className="text-center">
+                        <div className="text-sm font-medium text-gray-500 uppercase">{key.replace(/_/g, ' ')}</div>
+                        <div className="text-lg font-semibold text-gray-900">{value || 'N/A'}</div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-500">No query details available</p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -96,7 +118,7 @@ const ResultsDisplay = memo(function ResultsDisplay({ results, onNewQuery }: Res
             <CardContent>
               <div className="bg-gray-50 rounded-lg p-4">
                 <p className="text-gray-700">
-                  {results.Justification}
+                  {results.Justification || 'No justification provided'}
                 </p>
               </div>
             </CardContent>
@@ -107,26 +129,30 @@ const ResultsDisplay = memo(function ResultsDisplay({ results, onNewQuery }: Res
             <CardHeader>
               <CardTitle className="flex items-center">
                 <File className="mr-2 h-5 w-5 text-bajaj-blue" />
-                Relevant Policy Clauses
+                Relevant Policy Clauses ({relevantClauses.length})
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="bg-gray-50 rounded-lg p-4">
-                <div className="space-y-3">
-                  {relevantClauses.map((clause, index) => (
-                    <div key={index} className="border-l-4 border-bajaj-blue pl-4">
-                      <div className="flex items-start space-x-2 mb-1">
-                        <CheckCircle className="h-4 w-4 text-green-600 mt-1 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 font-medium">
-                          {clause.text}
-                        </span>
+                {relevantClauses.length > 0 ? (
+                  <div className="space-y-3">
+                    {relevantClauses.map((clause, index) => (
+                      <div key={index} className="border-l-4 border-bajaj-blue pl-4">
+                        <div className="flex items-start space-x-2 mb-1">
+                          <CheckCircle className="h-4 w-4 text-green-600 mt-1 flex-shrink-0" />
+                          <span className="text-sm text-gray-700 font-medium">
+                            {clause.text}
+                          </span>
+                        </div>
+                        <div className="text-xs text-gray-500 ml-6">
+                          Source: {clause.source} | Position: {clause.position}
+                        </div>
                       </div>
-                      <div className="text-xs text-gray-500 ml-6">
-                        Source: {clause.source} | Position: {clause.position}
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-500">No relevant clauses found</p>
+                )}
               </div>
             </CardContent>
           </Card>

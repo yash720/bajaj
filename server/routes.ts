@@ -7,9 +7,9 @@ import path from "path";
 import axios from "axios";
 import FormData from "form-data";
 import fs from "fs";
-import { uploadToCloudinary, downloadFromCloudinary } from "./cloudinary";
+// File processing utilities
 
-// Configure multer for memory storage (for Cloudinary upload)
+// Configure multer for memory storage (for direct file processing)
 const upload = multer({
   storage: multer.memoryStorage(),
   fileFilter: (req, file, cb) => {
@@ -42,20 +42,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Query is required" });
       }
 
-      let cloudinaryUrl: string | null = null;
       let pdfFileName: string | null = null;
 
-      // Upload PDF to Cloudinary if provided
+      // Process file directly if provided
       if (req.file) {
-        try {
-          console.log("Uploading file to Cloudinary...");
-          cloudinaryUrl = await uploadToCloudinary(req.file);
-          pdfFileName = req.file.originalname;
-          console.log('File uploaded to Cloudinary:', cloudinaryUrl);
-        } catch (uploadError) {
-          console.error('Error uploading to Cloudinary:', uploadError);
-          return res.status(500).json({ message: "Failed to upload file" });
-        }
+        pdfFileName = req.file.originalname;
+        console.log('File received for direct processing:', pdfFileName);
       } else {
         console.log("No file provided, will use default content");
       }
@@ -64,18 +56,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const form = new FormData();
       form.append('query', query);
       
-      if (cloudinaryUrl) {
-        // Download file from Cloudinary and send to Python API
-        try {
-          const fileBuffer = await downloadFromCloudinary(cloudinaryUrl);
-          form.append('file', fileBuffer, {
-            filename: pdfFileName || 'document.pdf',
-            contentType: 'application/pdf'
-          });
-        } catch (downloadError) {
-          console.error('Error downloading from Cloudinary:', downloadError);
-          return res.status(500).json({ message: "Failed to process uploaded file" });
-        }
+      if (req.file) {
+        // Send file directly to Python API
+        form.append('file', req.file.buffer, {
+          filename: pdfFileName || 'document.pdf',
+          contentType: 'application/pdf'
+        });
       } else {
         // Create a temporary file with default content if no PDF is provided
         const defaultContent = `Insurance Policy Document
@@ -123,11 +109,10 @@ This is a sample insurance policy document containing standard terms and conditi
         console.log("Python API response received:", response.status);
         console.log("Response data:", JSON.stringify(response.data, null, 2));
         
-        // Store the query and response with Cloudinary URL
+        // Store the query and response
         const claimQuery = await storage.createClaimQuery({
           query,
           pdfFileName,
-          cloudinaryUrl,
           response: response.data,
         });
         

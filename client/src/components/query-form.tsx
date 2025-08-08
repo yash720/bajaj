@@ -20,6 +20,9 @@ const QueryForm = memo(function QueryForm({ onResults, onLoading }: QueryFormPro
 
   const submitMutation = useMutation({
     mutationFn: async (data: { query: string; pdf?: File }) => {
+      console.log("Submitting query:", data.query);
+      console.log("File:", data.pdf?.name || "No file");
+      
       const formData = new FormData();
       formData.append("query", data.query);
       if (data.pdf) {
@@ -34,23 +37,28 @@ const QueryForm = memo(function QueryForm({ onResults, onLoading }: QueryFormPro
 
       if (!response.ok) {
         const error = await response.text();
+        console.error("API Error:", error);
         throw new Error(error || "Failed to process claim");
       }
 
-      return await response.json();
+      const result = await response.json();
+      console.log("API Response:", result);
+      return result;
     },
     onMutate: () => {
       onLoading(true);
     },
     onSuccess: (data) => {
+      console.log("Success - Final results:", data);
       onResults(data);
       onLoading(false);
       toast({
         title: "Claim Processed Successfully",
-        description: `Your claim has been ${data.Decision.toLowerCase()}.`,
+        description: `Your claim has been ${data.Decision?.toLowerCase() || 'processed'}.`,
       });
     },
     onError: (error) => {
+      console.error("Mutation error:", error);
       onLoading(false);
       toast({
         title: "Error Processing Claim",

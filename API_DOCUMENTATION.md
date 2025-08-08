@@ -27,8 +27,8 @@
 │  │   Server        │    │   File Handler  │    │    (Python API Call)    │  │
 │  └─────────────────┘    └─────────────────┘    └─────────────────────────┘  │
 │  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────────────┐  │
-│  │   Cloudinary    │    │   MongoDB       │    │    FormData Builder     │  │
-│  │   Upload/Download│   │   Storage       │    │    (File Processing)    │  │
+│   File Processing  │    │   MongoDB       │    │    FormData Builder     │  │
+│   (Direct)         │    │   Storage       │    │    (File Processing)    │  │
 │  └─────────────────┘    └─────────────────┘    └─────────────────────────┘  │
 └─────────────────────────────────────────────────────────────────────────────┘
                                     │
@@ -55,14 +55,14 @@
 │                              DATA STORAGE                                  │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────────────┐  │
-│  │   MongoDB       │    │   Cloudinary    │    │    Temporary Files      │  │
-│  │   Atlas         │    │   Cloud Storage │    │    (Local Processing)   │  │
-│  │   (Claim Data)  │    │   (PDF Files)   │    │                         │  │
+│   MongoDB       │    │   Local File      │    │    Temporary Files      │  │
+│   Atlas         │    │   Processing      │    │    (Local Processing)   │  │
+│   (Claim Data)  │    │   (Direct)        │    │                         │  │
 │  └─────────────────┘    └─────────────────┘    └─────────────────────────┘  │
 └─────────────────────────────────────────────────────────────────────────────┘
 
 📊 DATA FLOW:
-User Upload → Frontend Validation → Backend Processing → Cloudinary Storage → 
+User Upload → Frontend Validation → Backend Processing → Direct File Processing → 
 Python AI Analysis → MongoDB Storage → Results Display
 ```
 
@@ -149,7 +149,6 @@ fetch('/api/claims/abc123def456')
   "id": "abc123def456",
   "query": "46-year-old male, knee surgery in Pune, 3-month-old insurance policy",
   "pdfFileName": "policy_document.pdf",
-  "cloudinaryUrl": "https://res.cloudinary.com/.../policy_document.pdf",
   "response": {
     "QueryDetails": {...},
     "Decision": "Approved",
@@ -195,7 +194,6 @@ fetch('/api/claims')
     "id": "def456ghi789",
     "query": "32-year-old female, maternity care in Mumbai, 2-year-old policy",
     "pdfFileName": "maternity_policy.pdf",
-    "cloudinaryUrl": "https://res.cloudinary.com/.../maternity_policy.pdf",
     "response": {...},
     "createdAt": "2024-01-15T09:15:00.000Z"
   }
@@ -277,14 +275,14 @@ sequenceDiagram
     participant U as User
     participant F as Frontend
     participant B as Backend
-    participant C as Cloudinary
+    participant F as File Processor
     participant P as Python API
     participant M as MongoDB
 
     U->>F: Upload PDF + Submit Query
     F->>B: POST /api/claims
-    B->>C: Upload PDF to Cloudinary
-    C-->>B: Return Cloudinary URL
+    B->>F: Process PDF directly
+    F-->>B: Return processed file
     B->>P: POST /process with file
     P->>P: Extract text from PDF
     P->>P: Detect language
@@ -456,7 +454,7 @@ def evaluate_decision(query_details, relevant_clauses, query):
 1. **File Validation**: Only PDF files accepted
 2. **Size Limits**: 10MB maximum file size
 3. **Input Sanitization**: Query text sanitized before processing
-4. **Cloud Storage**: Files stored securely in Cloudinary
+4. **Local Processing**: Files processed directly without cloud storage
 5. **Database Security**: MongoDB Atlas with authentication
 
 ---

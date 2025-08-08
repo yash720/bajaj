@@ -34,7 +34,7 @@
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
 │  1. Multer receives file upload                                            │
-│  2. Cloudinary upload (if file provided)                                   │
+│  2. Direct file processing (if file provided)                             │
 │  3. MongoDB connection established                                         │
 │  4. FormData preparation for Python API                                    │
 │  5. HTTP request to Python AI API                                          │
@@ -63,7 +63,7 @@
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
 │  1. MongoDB: Store claim query and results                                 │
-│  2. Cloudinary: Store PDF file (if uploaded)                               │
+│  2. Local processing: Direct file handling                                  │
 │  3. Temporary files cleanup                                                │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
@@ -127,19 +127,18 @@ const handleSubmit = async (e: FormEvent) => {
 app.post("/api/claims", upload.single('pdf'), async (req, res) => {
   const { query } = req.body;
   
-  // 2. Cloudinary Upload
-  let cloudinaryUrl = null;
+  // 2. Direct File Processing
+  let pdfFileName = null;
   if (req.file) {
-    cloudinaryUrl = await uploadToCloudinary(req.file);
+    pdfFileName = req.file.originalname;
   }
   
   // 3. Python API Call
   const form = new FormData();
   form.append('query', query);
   
-  if (cloudinaryUrl) {
-    const fileBuffer = await downloadFromCloudinary(cloudinaryUrl);
-    form.append('file', fileBuffer, {
+  if (req.file) {
+    form.append('file', req.file.buffer, {
       filename: req.file.originalname,
       contentType: 'application/pdf'
     });
@@ -151,7 +150,6 @@ app.post("/api/claims", upload.single('pdf'), async (req, res) => {
   const claimQuery = await storage.createClaimQuery({
     query,
     pdfFileName: req.file?.originalname,
-    cloudinaryUrl,
     response: response.data,
   });
   
@@ -215,7 +213,7 @@ sequenceDiagram
     participant U as User
     participant F as Frontend
     participant B as Backend
-    participant C as Cloudinary
+    participant F as File Processor
     participant P as Python API
     participant M as MongoDB
 
@@ -224,10 +222,8 @@ sequenceDiagram
     F->>B: POST /api/claims (FormData)
     
     alt File Uploaded
-        B->>C: Upload PDF to Cloudinary
-        C-->>B: Return Cloudinary URL
-        B->>C: Download file as buffer
-        C-->>B: Return file buffer
+        B->>F: Process PDF directly
+        F-->>B: Return processed file
     else No File
         B->>B: Create default content
     end
@@ -266,7 +262,7 @@ sequenceDiagram
 - **Decision Logic**: Rule-based claim evaluation
 
 ### 4. Data Management
-- **Cloud Storage**: Cloudinary for PDF files
+- **Local Processing**: Direct file processing without cloud storage
 - **Database Storage**: MongoDB for claim queries
 - **Temporary Files**: Local processing with cleanup
 
@@ -317,7 +313,7 @@ Error Detection → Error Classification → Error Response → User Notificatio
 - **Rate limiting**: Request throttling
 
 ### 2. Data Protection
-- **Cloud storage**: Secure file storage in Cloudinary
+- **Local processing**: Direct file processing without cloud storage
 - **Database security**: MongoDB Atlas with authentication
 - **Environment variables**: Sensitive data protection
 

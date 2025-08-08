@@ -5,9 +5,7 @@
 ### 1. **Environment Setup** ✅
 ```bash
 # .env file already configured with your credentials:
-CLOUDINARY_CLOUD_NAME=dfdfugipq
-CLOUDINARY_API_KEY=717998256159241
-CLOUDINARY_API_SECRET=f7mJSgTzLGifGHbmXpY09VsCoJM
+# No external cloud storage required
 DATABASE_URL=mongodb+srv://codefreaks0:g2zl7q8EeWllpWzT@cluster0.mh8jeol.mongodb.net/
 ```
 
@@ -67,7 +65,7 @@ npm run dev
 ### If file upload fails:
 - Check file size (max 10MB)
 - Ensure it's a PDF file
-- Verify Cloudinary credentials
+- Verify file upload permissions
 
 ## 📱 API Testing
 

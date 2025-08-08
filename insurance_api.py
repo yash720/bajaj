@@ -17,9 +17,18 @@ from PIL import Image
 from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.responses import JSONResponse
 import uvicorn
+from datetime import datetime
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+# Also enable print statements for immediate visibility
+import sys
+def print_log(message):
+    """Print message to both console and log"""
+    print(f"[{datetime.now().strftime('%H:%M:%S')}] {message}")
+    logger.info(message)
 
 # Download NLTK data if not present
 try:
@@ -413,32 +422,49 @@ def evaluate_decision(query_details, relevant_clauses, query):
 
 def process_query(query, document_path):
     """Process query and return structured JSON response in the query's language."""
+    print_log("=" * 60)
+    print_log("STARTING CLAIM PROCESSING")
+    print_log("=" * 60)
+    print_log(f"Query: {query}")
+    print_log(f"Document path: {document_path}")
+    
     query_lang = detect_language(query)
-    print(f"Detected query language: {supported_languages.get(query_lang, 'English')}")
+    print_log(f"Detected query language: {supported_languages.get(query_lang, 'English')}")
 
     doc_text = extract_text(document_path, 'eng')  # Initial extraction for language detection
     doc_lang = detect_language(doc_text) if doc_text else 'eng'
-    logging.info(f"Detected document language: {doc_lang}")
-    logging.info(f"Document path: {document_path}")
-    logging.info(f"Document text length: {len(doc_text) if doc_text else 0}")
+    print_log(f"Detected document language: {doc_lang}")
+    print_log(f"Document text length: {len(doc_text) if doc_text else 0}")
 
     if not os.path.exists(document_path):
         error_msg = translate_text("Document not found", query_lang)
-        logging.error(f"Document not found: {document_path}")
+        print_log(f"ERROR: Document not found: {document_path}")
         return {"error": error_msg}
 
+    print_log("Extracting clauses from document...")
     clauses = parse_document(document_path, doc_lang)
-    logging.info(f"Number of clauses extracted: {len(clauses)}")
+    print_log(f"Number of clauses extracted: {len(clauses)}")
     if not clauses:
         error_msg = translate_text("No content extracted from document", query_lang)
-        logging.error(f"No clauses extracted from {document_path}")
+        print_log(f"ERROR: No clauses extracted from {document_path}")
         return {"error": error_msg}
 
+    print_log("Parsing query details...")
     query_details = parse_query(query, query_lang)
+    print_log(f"Query details: {query_details}")
+
+    print_log("Searching for relevant clauses...")
     relevant_clauses = search_clauses(query, clauses, document_path)
+    print_log(f"Found {len(relevant_clauses)} relevant clauses")
+
+    print_log("Evaluating decision...")
     decision = evaluate_decision(query_details, relevant_clauses, query)
+    print_log(f"Decision: {decision['Decision']}")
+    print_log(f"Amount: {decision['Amount']}")
+    print_log(f"Justification: {decision['Justification'][:100]}...")
 
     # Batch translate all textual fields
+    print_log("Translating results...")
     texts_to_translate = [
         query_details["gender"],
         query_details["procedure"],
@@ -470,8 +496,16 @@ def process_query(query, document_path):
             } for clause, _ in relevant_clauses
         ] if relevant_clauses else []
     }
-    logging.info(f"Final response structure: {list(response.keys())}")
-    logging.info(f"RelevantClauses count: {len(response['RelevantClauses'])}")
+    
+    print_log("=" * 60)
+    print_log("FINAL RESPONSE")
+    print_log("=" * 60)
+    print_log(f"Decision: {response['Decision']}")
+    print_log(f"Amount: {response['Amount']}")
+    print_log(f"RelevantClauses count: {len(response['RelevantClauses'])}")
+    print_log(f"QueryDetails: {response['QueryDetails']}")
+    print_log("=" * 60)
+    
     return response
 
 # At the end, add FastAPI app and endpoint
@@ -479,6 +513,13 @@ app = FastAPI()
 
 @app.post("/process")
 async def process(query: str = Form(...), file: UploadFile = File(...)):
+    print_log("=" * 60)
+    print_log("NEW REQUEST RECEIVED")
+    print_log("=" * 60)
+    print_log(f"Query: {query}")
+    print_log(f"File: {file.filename}")
+    print_log(f"File size: {file.size if hasattr(file, 'size') else 'Unknown'} bytes")
+    
     # Create a temporary file with proper extension
     file_extension = os.path.splitext(file.filename)[1] if file.filename else '.txt'
     if not file_extension:
@@ -492,19 +533,23 @@ async def process(query: str = Form(...), file: UploadFile = File(...)):
             content = await file.read()
             f.write(content)
         
-        logging.info(f"File saved: {file_location}, size: {len(content)} bytes")
+        print_log(f"File saved: {file_location}, size: {len(content)} bytes")
         
         # Process the query
+        print_log("Starting query processing...")
         result = process_query(query, file_location)
         
         # Clean up
         if os.path.exists(file_location):
             os.remove(file_location)
-            logging.info(f"Temporary file removed: {file_location}")
+            print_log(f"Temporary file removed: {file_location}")
         
+        print_log("=" * 60)
+        print_log("REQUEST COMPLETED SUCCESSFULLY")
+        print_log("=" * 60)
         return JSONResponse(content=result)
     except Exception as e:
-        logging.error(f"Error in process_query: {e}")
+        print_log(f"ERROR in process_query: {e}")
         # Clean up on error
         if os.path.exists(file_location):
             os.remove(file_location)
