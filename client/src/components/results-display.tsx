@@ -60,6 +60,11 @@ const ResultsDisplay = memo(function ResultsDisplay({ results, onNewQuery }: Res
               <p className={`text-2xl font-bold ${isApproved ? 'text-green-700' : 'text-red-700'}`}>
                 {results.Decision || 'No Decision'}
               </p>
+              {results.Confidence && (
+                <p className="text-sm text-gray-600 mt-2">
+                  Confidence: {(results.Confidence * 100).toFixed(1)}%
+                </p>
+              )}
             </CardContent>
           </Card>
 
@@ -87,6 +92,11 @@ const ResultsDisplay = memo(function ResultsDisplay({ results, onNewQuery }: Res
               <CardTitle className="flex items-center">
                 <Info className="mr-2 h-5 w-5 text-bajaj-blue" />
                 Query Details
+                {results.Language && (
+                  <span className="ml-2 text-sm text-gray-500">
+                    (Processed in {results.Language})
+                  </span>
+                )}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -146,6 +156,7 @@ const ResultsDisplay = memo(function ResultsDisplay({ results, onNewQuery }: Res
                         </div>
                         <div className="text-xs text-gray-500 ml-6">
                           Source: {clause.source} | Position: {clause.position}
+                          {clause.confidence && ` | Confidence: ${(clause.confidence * 100).toFixed(1)}%`}
                         </div>
                       </div>
                     ))}

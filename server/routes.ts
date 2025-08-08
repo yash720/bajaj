@@ -29,7 +29,7 @@ const upload = multer({
 export async function registerRoutes(app: Express): Promise<Server> {
   
   // Submit claim query with optional PDF
-  app.post("/api/claims", upload.single('pdf'), async (req, res) => {
+  app.post("/api/claims", upload.single('file'), async (req, res) => {
     try {
       console.log("Received claim request:", { 
         hasFile: !!req.file, 
@@ -96,7 +96,7 @@ This is a sample insurance policy document containing standard terms and conditi
 
       // Send to Python API
       console.log("Sending request to Python API...");
-      const pythonApiUrl = 'http://127.0.0.1:8000/process';
+      const pythonApiUrl = 'http://127.0.0.1:8000/process-claim';
       
       try {
         const response = await axios.post(pythonApiUrl, form, {

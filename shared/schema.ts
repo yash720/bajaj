@@ -39,11 +39,15 @@ export const claimResponseSchema = z.object({
   Decision: z.string(),
   Amount: z.number().nullable(),
   Justification: z.string(),
+  Confidence: z.number().optional(),
   RelevantClauses: z.array(z.object({
     text: z.string(),
     source: z.string(),
     position: z.number(),
+    confidence: z.number().optional(),
   })),
+  Language: z.string().optional(),
+  ProcessedAt: z.string().optional(),
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;

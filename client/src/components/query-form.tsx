@@ -26,7 +26,7 @@ const QueryForm = memo(function QueryForm({ onResults, onLoading }: QueryFormPro
       const formData = new FormData();
       formData.append("query", data.query);
       if (data.pdf) {
-        formData.append("pdf", data.pdf);
+        formData.append("file", data.pdf);
       }
 
       const response = await fetch("/api/claims", {

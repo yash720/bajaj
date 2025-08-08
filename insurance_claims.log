@@ -1,0 +1,31 @@
+2025-08-08 17:32:19,449 - INFO - Loading sentence transformer model...
+2025-08-08 17:32:19,451 - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-08-08 17:32:22,441 - WARNING - Xet Storage is enabled for this repo, but the 'hf_xet' package is not installed. Falling back to regular HTTP download. For better performance, install the package with: `pip install huggingface_hub[hf_xet]` or `pip install hf_xet`
+2025-08-08 17:32:44,927 - INFO - Loading language model...
+2025-08-08 17:32:45,591 - WARNING - Xet Storage is enabled for this repo, but the 'hf_xet' package is not installed. Falling back to regular HTTP download. For better performance, install the package with: `pip install huggingface_hub[hf_xet]` or `pip install hf_xet`
+2025-08-08 17:36:18,210 - WARNING - Xet Storage is enabled for this repo, but the 'hf_xet' package is not installed. Falling back to regular HTTP download. For better performance, install the package with: `pip install huggingface_hub[hf_xet]` or `pip install hf_xet`
+2025-08-08 17:36:20,041 - INFO - Models initialized successfully!
+2025-08-08 17:36:20,053 - ERROR - Form data requires "python-multipart" to be installed. 
+You can install "python-multipart" with: 
+
+pip install python-multipart
+
+2025-08-08 17:37:07,814 - INFO - Loading sentence transformer model...
+2025-08-08 17:37:07,818 - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-08-08 17:37:11,879 - INFO - Loading language model...
+2025-08-08 17:37:13,443 - INFO - Models initialized successfully!
+2025-08-08 17:38:07,697 - INFO - Processing file: LAKSHYA_ARORA_PROFILE_PHOTO_2027.pdf (84788 bytes)
+2025-08-08 17:38:07,708 - INFO - Processing query: 46M,knee surgury,3 month policy
+2025-08-08 17:38:09,355 - INFO - Detected language: English
+2025-08-08 17:38:09,378 - INFO - Performing OCR on page 1 of C:\Users\Asus\AppData\Local\Temp\tmpwf43vy_5.pdf
+2025-08-08 17:38:10,425 - WARNING - Error processing page 1: tesseract is not installed or it's not in your PATH. See README file for more information.
+2025-08-08 17:38:10,429 - WARNING - No text extracted from C:\Users\Asus\AppData\Local\Temp\tmpwf43vy_5.pdf
+2025-08-08 17:40:17,317 - INFO - Processing file: BAJHLIP23020V012223.pdf (1399614 bytes)
+2025-08-08 17:40:17,317 - INFO - Processing query: 46M, knee surgery, Pune, 3-month policy
+2025-08-08 17:40:17,319 - INFO - Detected language: English
+2025-08-08 17:40:23,767 - INFO - Extracted 279242 characters from document
+2025-08-08 17:40:23,780 - INFO - Extracted 464 clauses from document
+2025-08-08 17:40:26,600 - INFO - Generated embeddings for clauses
+2025-08-08 17:40:29,224 - INFO - Extracted query details: {'age': '46', 'gender': None, 'procedure': 'knee surgery', 'location': 'knee surgery', 'policy_duration': '3'}
+2025-08-08 17:40:29,241 - INFO - Found 3 relevant clauses
+2025-08-08 17:40:29,241 - INFO - Processing completed. Decision: Approved

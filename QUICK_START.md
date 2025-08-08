@@ -1,104 +1,91 @@
-# ⚡ BajajBot Quick Start Guide
+# Quick Start Guide
 
-## 🚀 Get Started in 5 Minutes
+Get the Insurance Claims Processing System running in 5 minutes!
 
-### 1. **Environment Setup** ✅
+## Prerequisites
+
+- Node.js (v16 or higher)
+- Python (v3.8 or higher)
+- Git
+
+## Step 1: Install Dependencies
+
 ```bash
-# .env file already configured with your credentials:
-# No external cloud storage required
-DATABASE_URL=mongodb+srv://codefreaks0:g2zl7q8EeWllpWzT@cluster0.mh8jeol.mongodb.net/
-```
-
-### 2. **Start All Services**
-```bash
-# Terminal 1: Python AI API
-python insurance_api.py
-
-# Terminal 2: Node.js Backend + Frontend
-npm run dev
-```
-
-### 3. **Access Your Application**
-- **Frontend**: http://localhost:5000
-- **Backend API**: http://localhost:5000/api
-- **Python AI API**: http://localhost:8000
-
-## 🎯 Quick Test
-
-1. **Open Browser**: Go to http://localhost:5000
-2. **Upload PDF**: Click "Browse Files" and select any insurance policy PDF
-3. **Enter Query**: Type: `"46-year-old male, knee surgery in Pune, 3-month-old insurance policy"`
-4. **Submit**: Click "Process Claim"
-5. **View Results**: See the analysis results!
-
-## 📊 Expected Results
-
-```json
-{
-  "Decision": "Approved",
-  "Amount": 500000,
-  "Justification": "Clause analysis...",
-  "RelevantClauses": [
-    {
-      "text": "Inpatient hospitalization is covered...",
-      "source": "policy_document.pdf",
-      "position": 0
-    }
-  ]
-}
-```
-
-## 🔧 Troubleshooting
-
-### If Python API doesn't start:
-```bash
-pip install sentencepiece
-python insurance_api.py
-```
-
-### If frontend doesn't load:
-```bash
+# Install Node.js dependencies
 npm install
+
+# Install Python dependencies
+pip install -r requirements.txt
+```
+
+## Step 2: Start the Python API
+
+```bash
+# Start the insurance processing API
+python start_api.py
+```
+
+You should see output like:
+```
+Starting Insurance Claims Processing API...
+API will be available at: http://127.0.0.1:8000
+Health check: http://127.0.0.1:8000/health
+Supported languages: http://127.0.0.1:8000/supported-languages
+```
+
+## Step 3: Start the Frontend
+
+In a new terminal:
+
+```bash
+# Start the development server
 npm run dev
 ```
 
-### If file upload fails:
+The application will be available at `http://127.0.0.1:5000`
+
+## Step 4: Test the System
+
+1. Open your browser to `http://127.0.0.1:5000`
+2. Upload a PDF document (or skip if you want to use default content)
+3. Enter a query like: "46-year-old male, knee surgery in Pune, 3-month-old insurance policy"
+4. Click "Process Claim"
+5. View the results!
+
+## Example Queries to Try
+
+- "32-year-old female, maternity care in Mumbai, 24-month policy"
+- "55-year-old male, accident injury in Delhi, 6-month policy"
+- "28-year-old female, dental surgery in Bangalore, 12-month policy"
+
+## Troubleshooting
+
+### Python API Issues
+- Make sure all packages are installed: `pip install -r requirements.txt`
+- Check if port 8000 is available
+- Try: `python -c "import torch; print('PyTorch OK')"`
+
+### Frontend Issues
+- Make sure Node.js server is running on port 5000
+- Check browser console for errors
+- Try refreshing the page
+
+### File Upload Issues
+- Ensure file is PDF, DOCX, TXT, or EML format
 - Check file size (max 10MB)
-- Ensure it's a PDF file
-- Verify file upload permissions
+- Try with a different file
 
-## 📱 API Testing
+## Next Steps
 
-### Test with curl:
-```bash
-# Test claim processing
-curl -X POST http://localhost:5000/api/claims \
-  -F "query=46-year-old male, knee surgery in Pune, 3-month-old insurance policy" \
-  -F "pdf=@your_policy.pdf"
-```
+- Read the full [README.md](README.md) for detailed documentation
+- Check the [API Documentation](API_DOCUMENTATION.md) for technical details
+- Explore the codebase structure in the project folders
 
-### Test Python API directly:
-```bash
-curl -X POST http://localhost:8000/process \
-  -F "query=46-year-old male, knee surgery in Pune, 3-month-old insurance policy" \
-  -F "file=@your_policy.pdf"
-```
+## Support
 
-## 🎉 Success Indicators
+If you encounter issues:
+1. Check the troubleshooting section in the main README
+2. Open an issue on GitHub
+3. Contact the development team
 
-✅ **Python API**: "INFO: Uvicorn running on http://127.0.0.1:8000"  
-✅ **Backend**: "Connected to MongoDB"  
-✅ **Frontend**: "Claim Analysis Complete" message  
-✅ **File Upload**: Green checkmark with file details  
-✅ **Results**: Proper RelevantClauses array (not undefined)  
-
-## 📞 Need Help?
-
-- Check console logs for errors
-- Verify all services are running
-- Ensure ports 5000 and 8000 are free
-- Check .env file configuration
-
----
-
-**Your BajajBot is ready to analyze insurance claims! 🏥✨**
+Happy processing! 🚀

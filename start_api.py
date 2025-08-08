@@ -1,56 +1,71 @@
 #!/usr/bin/env python3
 """
-Script to start the insurance_api.py with enhanced logging
+Startup script for the Insurance Claims Processing API
 """
 
 import subprocess
 import sys
 import os
+import time
+import signal
+import threading
 
-def start_api():
-    """Start the insurance API with enhanced output"""
-    print("=" * 60)
-    print("STARTING BAJAJBOT INSURANCE API")
-    print("=" * 60)
-    print("This will start the Python API on http://127.0.0.1:8000")
-    print("You should see detailed logging output below:")
-    print("=" * 60)
-    print()
-    
+def run_python_api():
+    """Run the Python insurance API."""
     try:
-        # Check if insurance_api.py exists
-        if not os.path.exists("insurance_api.py"):
-            print("ERROR: insurance_api.py not found in current directory")
-            print("Make sure you're in the correct directory")
-            return
+        print("Starting Insurance Claims Processing API...")
+        print("API will be available at: http://127.0.0.1:8000")
+        print("Health check: http://127.0.0.1:8000/health")
+        print("Supported languages: http://127.0.0.1:8000/supported-languages")
+        print("\nPress Ctrl+C to stop the API")
+        print("-" * 50)
         
-        # Start the API
-        print("Starting insurance_api.py...")
-        print("Press Ctrl+C to stop the API")
-        print("-" * 60)
+        # Run the insurance API
+        process = subprocess.Popen([
+            sys.executable, "insurance_api.py"
+        ], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
         
-        # Run the API with subprocess to capture output
-        process = subprocess.Popen(
-            [sys.executable, "insurance_api.py"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            universal_newlines=True,
-            bufsize=1
-        )
-        
-        # Print output in real-time
-        for line in iter(process.stdout.readline, ''):
-            if line:
-                print(line.rstrip())
-        
-        process.wait()
-        
+        # Stream output
+        for line in process.stdout:
+            print(line.rstrip())
+            
     except KeyboardInterrupt:
-        print("\n" + "=" * 60)
-        print("API stopped by user")
-        print("=" * 60)
+        print("\nShutting down API...")
+        if 'process' in locals():
+            process.terminate()
+            process.wait()
     except Exception as e:
-        print(f"ERROR starting API: {e}")
+        print(f"Error running API: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    start_api()
+    # Check if required files exist
+    if not os.path.exists("insurance_api.py"):
+        print("Error: insurance_api.py not found!")
+        print("Please ensure you're in the correct directory.")
+        sys.exit(1)
+    
+    # Check if required packages are installed
+    required_packages = [
+        "fastapi", "uvicorn", "sentence-transformers", 
+        "transformers", "torch", "pdfplumber", "python-docx",
+        "pdf2image", "pytesseract", "langdetect", "nltk"
+    ]
+    
+    missing_packages = []
+    for package in required_packages:
+        try:
+            __import__(package.replace("-", "_"))
+        except ImportError:
+            missing_packages.append(package)
+    
+    if missing_packages:
+        print("Missing required packages:")
+        for package in missing_packages:
+            print(f"  - {package}")
+        print("\nInstall them with:")
+        print(f"pip install {' '.join(missing_packages)}")
+        sys.exit(1)
+    
+    # Run the API
+    run_python_api()
