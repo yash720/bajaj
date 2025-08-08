@@ -57,21 +57,10 @@ BajajBot is an intelligent insurance claim analysis system that processes insura
 │  │   Search        │    │   Evaluation    │    │    Engine               │  │
 │  └─────────────────┘    └─────────────────┘    └─────────────────────────┘  │
 └─────────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                              DATA STORAGE                                  │
-├─────────────────────────────────────────────────────────────────────────────┤
-│  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────────────┐  │
-│   MongoDB       │    │   Local File      │    │    Temporary Files      │  │
-│   Atlas         │    │   Processing      │    │    (Local Processing)   │  │
-│   (Claim Data)  │    │   (Direct)        │    │                         │  │
-│  └─────────────────┘    └─────────────────┘    └─────────────────────────┘  │
-└─────────────────────────────────────────────────────────────────────────────┘
 
 📊 DATA FLOW:
 User Upload → Frontend Validation → Backend Processing → Direct File Processing → 
-Python AI Analysis → MongoDB Storage → Results Display
+Python AI Analysis → Results Display
 ```
 
 ## 📁 Project Structure
@@ -167,7 +156,11 @@ python insurance_api.py
 npm run dev
 
 # Terminal 3: Start React Frontend
-cd client && npm run dev
+cd client
+npm install
+npm run build
+cd ..
+npm run dev
 ```
 
 ## 🔄 How It Works
@@ -281,7 +274,6 @@ FormData:
 - **Maternity Benefits**: Specific rules for maternity coverage
 - **Geographic Coverage**: Location-based coverage evaluation
 
-### 4. Database Schema
 
 #### ClaimQueries Collection
 ```javascript
@@ -295,26 +287,6 @@ FormData:
 }
 ```
 
-## 🚀 Deployment
-
-### Frontend Deployment
-```bash
-cd client
-npm run build
-# Deploy build folder to hosting service
-```
-
-### Backend Deployment
-```bash
-npm run build
-# Deploy to Node.js hosting (Vercel, Heroku, etc.)
-```
-
-### Python API Deployment
-```bash
-# Deploy to Python hosting (Railway, Render, etc.)
-# Ensure all dependencies are in requirements.txt
-```
 
 ## 🔍 Troubleshooting
 
@@ -323,7 +295,6 @@ npm run build
 1. **Python API Not Starting**
    - Check if all dependencies are installed
    - Verify sentencepiece is installed: `pip install sentencepiece`
-   - Check if fasttext model exists: `lid.176.bin`
 
 2. **File Upload Issues**
    - Verify file upload permissions
