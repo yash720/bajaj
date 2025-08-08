@@ -38,7 +38,7 @@ DetectorFactory.seed = 0
 class Config:
     """Configuration settings for the insurance claims system."""
     # Model settings
-    EMBEDDER_MODEL: str = "all-MiniLM-L6-v2"
+    EMBEDDER_MODEL: str = "paraphrase-MiniLM-L3-v2"
     LLM_MODEL: str = "google/flan-t5-base"
     
     # Language settings
